@@ -18,7 +18,7 @@ subtitle:
 author: Oriol Abril
 description: >- # this means to ignore newlines until "baseurl:"
   My blog for the Google Summer of Code (GSoC) experience. I will post regularly about
-  the work performed while contributing to [ArviZ](https://arviz-devs.github.io/arviz/index.html),
+  the work performed while contributing to <a href="https://arviz-devs.github.io/arviz/index.html">ArviZ</a>,
   challenges faced and about contributing to open source software in general.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
