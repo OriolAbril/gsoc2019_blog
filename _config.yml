@@ -34,9 +34,6 @@ linkedin_url:
 
 # Build settings
 markdown: kramdown
-theme: forty_jekyll_theme
-plugins:
-  - jekyll-feed
 
 sass:
     style: compressed
