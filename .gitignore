@@ -4,3 +4,5 @@ _site
 Gemfile.lock
 *.gem
 .bundle
+_posts/2016*
+assets/images/pic*
