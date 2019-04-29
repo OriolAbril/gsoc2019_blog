@@ -40,6 +40,11 @@ img {
 			top: 0.25em;
 		}
 
+        &.center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
 		&.fit {
 			display: block;
 			margin: 0 0 _size(element-margin) 0;
