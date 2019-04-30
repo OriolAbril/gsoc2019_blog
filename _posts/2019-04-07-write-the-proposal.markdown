@@ -44,5 +44,5 @@ glance. The explanation of the labels can be found in the
 [complete proposal](https://github.com/OriolAbril/gsoc2019/blob/master/proposal.pdf). Below there is the code used to generate the Gnatt Chart:
 
 {% highlight python %}
-{% remote_include https://raw.githubusercontent.com/OriolAbril/gsoc2019/master/gnatt.py %}
+{% include_relative  code/gnatt.py %}
 {% endhighlight %}
