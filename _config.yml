@@ -37,8 +37,8 @@ markdown: kramdown
 highlighter: rouge
 kramdown:
   syntax_highlighter: rouge
-plugins:
-  - jekyll-remote-include
+# plugins:
+#   - jekyll-remote-include
 
 # sass:
 #     style: compressed
