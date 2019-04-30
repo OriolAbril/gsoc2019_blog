@@ -25,7 +25,7 @@ url: "" # the base hostname & protocol for your site, e.g. http://example.com
 
 # homepage tiles
 tiles-source: posts # accepts "posts" or "pages"
-tiles-count: 6
+tiles-count: 10
 
 # social settings
 github_url: https://github.com/OriolAbril
@@ -34,9 +34,14 @@ linkedin_url:
 
 # Build settings
 markdown: kramdown
+highlighter: rouge
+kramdown:
+  syntax_highlighter: rouge
+plugins:
+  - jekyll-remote-include
 
-sass:
-    style: compressed
+# sass:
+#     style: compressed
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
 # to override the default setting.
