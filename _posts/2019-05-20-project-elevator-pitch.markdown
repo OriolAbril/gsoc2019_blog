@@ -10,7 +10,7 @@ image: assets/images/ArviZ.png
 
 My GSoC project is in the field of Bayesian modelling. The aim of modelling is
 to help to explain, define or estimate a given aspect of the world based on
-known or easier to access data. The adjective Bayesian specifies how this is
+known or more accessible data. The adjective Bayesian specifies how this is
 done. From a probabilistic point of view, it uses data to update our
 current state of knowledge of the world. Thus, it allows to take into account
 both the data available and the current knowledge on the topic. Bayesian
@@ -29,7 +29,7 @@ algorithm has converged. This is important because these algorithms are proven
 to work _assimptotically_, which is when the number of iterations of the
 algorithm becomes infinite. However, in the real world, the number of
 iterations must be finite, thus, it is crucial to know (or at least estimate)
-when the algorithm is not performing properly because in this case, the
+when the algorithm is not performing properly because, in this case, the
 results cannot be trusted.
 
 ### Information Criteria
