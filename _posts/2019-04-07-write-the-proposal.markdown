@@ -4,6 +4,7 @@ title:  "The Proposal"
 description: "Writing the proposal for ArviZ"
 date:   2019-04-08 00:03:28 +0200
 image: assets/images/gnatt.png
+
 ---
 
 I started my proposal following the examples in the
