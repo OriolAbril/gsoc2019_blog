@@ -1,0 +1,47 @@
+---
+layout: post
+title:  "My GSoC workflow"
+description: "How do I combine _working_ with _from home_ and _to open source software_"
+date:   2019-06-17 10:20:00 +0200
+image: assets/images/gnatt.png
+
+---
+
+I have talked about the proposal, the blog, open source software, what my project is
+about, and some weeks have passed since the start of the coding period, however, now
+I realize I have yet to talk about what GSoC is and what is my daily routine as a
+participant. This post will have two main sections, one little introduction
+about GSoC (all the info about the program is available on
+[its official site](https://summerofcode.withgoogle.com/)),
+and a second larger section on my daily work routine.
+
+### GSoC
+
+Google Summer of Code is a global program organized by
+[Google Open Source](https://opensource.google.com/). Its goal is at the same
+time to support students by giving them the opportunity to work as programmers
+during their summer and to empower and increase the open source software
+community. It started in 2005 with 200 students, growing every year and
+reaching 1276 accepted students in 2019.
+
+GSoC has two selection phases, one for free open source projects and another
+for students. Once the organizations have been selected, it is up to the
+organizations alone to choose which students are accepted. Google's role is to
+assign the number of student slots per organization, not who fills them.
+I have not been
+able to find much information about the slot assignment process, but it looks
+like it depends on the number of proposals received and the total number of
+students each organization is able to mentor.
+Afterwards, during the summer, students code for their OSS project, while
+getting paid by Google.
+
+In order to make sure that both student and mentor are following the program
+guidelines, there are two 15 minute evaluations, were the student has to answer some
+questions abut the mentor and vice-versa. If passed, these evaluations trigger
+the payment of part of the GSoC stipend. Eventually, there is a final
+evaluation, were students must also write a summary of their work and links to
+the code produced.
+
+### My workflow
+
+
