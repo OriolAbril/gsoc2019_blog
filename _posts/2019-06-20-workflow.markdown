@@ -1,9 +1,9 @@
 ---
 layout: post
 title:  "My GSoC workflow"
-description: "How do I combine _working_ with _from home_ and _to open source software_"
+description: "How do I combine <i>working</i> with <i>from home</i> and <i>to open source software</i>"
 date:   2019-06-17 10:20:00 +0200
-image: assets/images/gnatt.png
+image: assets/images/flow-transparent.png
 
 ---
 
