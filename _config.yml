@@ -37,6 +37,7 @@ markdown: kramdown
 highlighter: rouge
 kramdown:
   syntax_highlighter: rouge
+  math_engine: mathjax
 # plugins:
 #   - jekyll-remote-include
 
