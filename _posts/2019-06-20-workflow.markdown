@@ -44,4 +44,47 @@ the code produced.
 
 ### My workflow
 
+My work for ArviZ during GSoC covers a wide range of tasks that goes even
+further from all the tasks detailed in the proposal. Hence, organization and
+planning are vital in order to achieve my goals. Moreover, not only I have to
+plan all the different tasks and how to divide work but also when to do them.
+
+For task management, GitHub itself already has plenty of features to help me
+organizing them. When I started coding, I would send a pull request (PR) to
+from my fork to ArviZ main repository as early as possible. Thus, my PR start
+generally labeled as WIP (Work In Progress) and grow and sum commits as time
+advances. I also include a description of the PR goals and some examples in
+the first PR message. This methodology allows all ArviZ contributors to know
+what the PR is about, and to advise and review early on in the coding process.
+In addition, all continuous integration test are run for most of the commits,
+making sure I am not breaking any of the other functions in ArviZ. In some
+cases, I also used checklists (which can be directly embedded in PR messages)
+to keep track of all features and subtasks pending in the PR. Eventually, if
+some related subtask goes beyond the PR, I would create an issue to keep track
+of these pending tasks.
+
+For time management, I relied on time tracking software. It would allow to
+keep track of how much time I spent on each PR, and even inside each PR how
+the time was divided between reading literature on usage of the algorithms,
+coding itself and writing tests. Time management is really important for me,
+because I always want to fully understand what I am doing, which in some cases
+is great, but in some others it can slow me down a little bit; using time tracking
+made it clear to me when to move on to the next task in order to keep up with
+the planned timeline. Also, writing detailed descriptions of what I
+was doing, would make starting to work the next day even easier as I would
+know exactly where I left off.
+
+Afterwards, when the PR reached its end point, before considering it ready for
+merging, I would also test the code in some realish examples, not only in the
+automated continuous integration tests. I already have a whole task in the
+proposal for testing on real examples, which is why these examples are quite
+simple and I label them as realish, not as real. In some weeks I do plan to
+get to the real case testing, which will be to check out some github
+repositories using ArviZ or any of the supported MCMC libraries and apply the
+stats and diagnostic functions on these real examples. Doing this I plan to
+achieve two goals. The first one and most important is to prove that all the
+algorithms work in all real cases, and the second goal, which is optional, is
+to create some PR on one of these repos, in order to extend knowledge and
+usage of the implemented algorithms.
+
 
