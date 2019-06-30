@@ -1,11 +1,5 @@
 
-# LOO-CV on transformed data
-Blog post exploring whether or not LOO-CV can be used to compare models that try to explain some data $y$ with models trying to explain the same data after a transformation $z=f(y)$. Inspired by [@tiagocc question](https://discourse.mc-stan.org/t/very-simple-loo-question/9258) on Stan Forums. Intended to be a follow up to my answer there.
-
-In the first example, we will compare two equivalent models: 
-
-1. $y \sim \text{LogNormal}(\mu, \sigma)$
-2. $\log y \sim \text{Normal}(\mu, \sigma)$
+Blog post exploring whether or not LOO-CV can be used to compare models that try to explain some data $y$ with models trying to explain the same data after a transformation $z=f(y)$. Inspired by [@tiagocc question](https://discourse.mc-stan.org/t/very-simple-loo-question/9258) on Stan Forums. This post has two sections, the first one is the mathematical derivation of the equations used and their application on a validation example, and the second section is a real example. In addition to the LOO-CV usage examples and explanations, another goal of this notebook is to show and highlight the capabilities of [ArviZ](https://arviz-devs.github.io/arviz/).
 
 
 ```python
@@ -13,10 +7,21 @@ import pystan
 import pandas as pd
 import numpy as np
 import arviz as az
-az.style.use('arviz-darkgrid')
 import matplotlib.pyplot as plt
 ```
 
+
+```python
+plt.style.use('../forty_blog.mplstyle')
+```
+
+## Mathematical derivation and validation example
+In the first example, we will compare two equivalent models:
+
+1. $y \sim \text{LogNormal}(\mu, \sigma)$
+2. $\log y \sim \text{Normal}(\mu, \sigma)$
+
+### Model definition and execution
 Define the data and execute the two models
 
 
@@ -26,7 +31,7 @@ sigma = 1
 logy = np.random.normal(loc=mu, scale=sigma, size=30)
 y = np.exp(logy) # y will then be distributed as lognormal
 data = {
-    'N': len(y),      
+    'N': len(y),
     'y': y,
     'logy': logy
 }
@@ -128,7 +133,7 @@ idata_normal = az.from_pystan(
 )
 ```
 
-Check model convergence
+Check model convergence. Use `az.summary` to in one view that the effective sample size (ESS) is large enough and $\hat{R}$ is close to one.
 
 
 ```python
@@ -172,30 +177,30 @@ az.summary(idata_lognormal)
   <tbody>
     <tr>
       <th>mu</th>
-      <td>2.038</td>
-      <td>0.144</td>
-      <td>1.774</td>
-      <td>2.309</td>
-      <td>0.004</td>
+      <td>1.826</td>
+      <td>0.192</td>
+      <td>1.474</td>
+      <td>2.182</td>
+      <td>0.005</td>
       <td>0.003</td>
-      <td>1290.0</td>
-      <td>1290.0</td>
-      <td>1373.0</td>
-      <td>920.0</td>
+      <td>1605.0</td>
+      <td>1602.0</td>
+      <td>1619.0</td>
+      <td>1197.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>sigma</th>
-      <td>0.779</td>
-      <td>0.109</td>
-      <td>0.588</td>
-      <td>0.981</td>
+      <td>1.019</td>
+      <td>0.139</td>
+      <td>0.777</td>
+      <td>1.277</td>
+      <td>0.004</td>
       <td>0.003</td>
-      <td>0.002</td>
-      <td>1371.0</td>
-      <td>1284.0</td>
-      <td>1503.0</td>
-      <td>1041.0</td>
+      <td>1295.0</td>
+      <td>1252.0</td>
+      <td>1382.0</td>
+      <td>1282.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -246,30 +251,30 @@ az.summary(idata_normal)
   <tbody>
     <tr>
       <th>mu</th>
-      <td>2.039</td>
-      <td>0.141</td>
-      <td>1.797</td>
-      <td>2.314</td>
+      <td>1.818</td>
+      <td>0.193</td>
+      <td>1.468</td>
+      <td>2.198</td>
+      <td>0.005</td>
       <td>0.004</td>
-      <td>0.003</td>
-      <td>1289.0</td>
-      <td>1275.0</td>
-      <td>1303.0</td>
-      <td>979.0</td>
+      <td>1363.0</td>
+      <td>1363.0</td>
+      <td>1359.0</td>
+      <td>909.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>sigma</th>
-      <td>0.772</td>
-      <td>0.107</td>
-      <td>0.585</td>
-      <td>0.963</td>
+      <td>1.028</td>
+      <td>0.150</td>
+      <td>0.766</td>
+      <td>1.307</td>
+      <td>0.005</td>
       <td>0.003</td>
-      <td>0.002</td>
-      <td>1578.0</td>
-      <td>1476.0</td>
-      <td>1660.0</td>
-      <td>1243.0</td>
+      <td>1030.0</td>
+      <td>964.0</td>
+      <td>1149.0</td>
+      <td>735.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -278,7 +283,19 @@ az.summary(idata_normal)
 
 
 
-Check that both models are equivalent and do indeed give the same result
+In addition, we can plot the quantile ESS plot for one of them directly with `plot_ess`
+
+
+```python
+az.plot_ess(idata_normal, kind="quantile", color="k");
+```
+
+
+![png]({{site.url}}/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_16_0.png)
+
+
+### Posterior validation
+Check that both models are equivalent and do indeed give the same result for both parameters.
 
 
 ```python
@@ -286,7 +303,7 @@ az.plot_posterior(idata_lognormal);
 ```
 
 
-![png](LOO-CV_transformed_data_files/LOO-CV_transformed_data_14_0.png)
+![png]({{site.url}}/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_18_0.png)
 
 
 
@@ -295,21 +312,11 @@ az.plot_posterior(idata_normal);
 ```
 
 
-![png](LOO-CV_transformed_data_files/LOO-CV_transformed_data_15_0.png)
+![png]({{site.url}}/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_19_0.png)
 
 
-
-```python
-print(plt.rcParams["savefig.facecolor"])
-print(plt.rcParams["savefig.transparent"])
-```
-
-    white
-    False
-
-
-# Calculate LOO-CV
-Now we get to calculate LOO-CV using Pareto Smoothed Importance Sampling as detailed in Vehtari et al., 2017.
+### Calculate LOO-CV
+Now we get to calculate LOO-CV using Pareto Smoothed Importance Sampling as detailed in Vehtari et al., 2017. As we explained above, both models are equivalent, but one is in terms of $y$ and the other in terms of $\log y$. Therefore, their likelihoods will be on different scales, and hence, their expected log predictive density will also be different.
 
 
 ```python
@@ -320,12 +327,12 @@ az.loo(idata_lognormal, pointwise=True)
 
 
     Computed from 2000 by 30 log-likelihood matrix
-    
+
            Estimate       SE
-    IC_loo   192.66    11.15
-    p_loo      1.76        -
+    IC_loo   195.38    11.82
+    p_loo      1.46        -
     ------
-    
+
     Pareto k diagnostic values:
                              Count   Pct.
     (-Inf, 0.5]   (good)       30  100.0%
@@ -344,12 +351,12 @@ az.loo(idata_normal, pointwise=True)
 
 
     Computed from 2000 by 30 log-likelihood matrix
-    
+
            Estimate       SE
-    IC_loo    70.18     7.17
-    p_loo      1.74        -
+    IC_loo    86.57     5.25
+    p_loo      1.46        -
     ------
-    
+
     Pareto k diagnostic values:
                              Count   Pct.
     (-Inf, 0.5]   (good)       30  100.0%
@@ -377,7 +384,7 @@ $$ \text{elpd}_{psis-loo}^{(2)} \approx \sum_{i=1}^n \log p(z_i|z_{-i}) $$
 
 being $z_i = \log y_i$. We actually have two different probability density functions, one over $y$ which from here on we will note $p_y(y)$, and $p_z(z)$.
 
-In order to estimate the elpd loo for $y$ from the data in the second model, $z$, we have to describe $p_y(y)$ as a function of $z$ and $p_z(z)$. We know that $y$ and $z$ are actually related, and we can use this relation to find how would the random variable $y$ which is actually a transformation of the random variable $z$ be distributed. Therefore:
+In order to estimate the elpd loo for $y$ from the data in the second model, $z$, we have to describe $p_y(y)$ as a function of $z$ and $p_z(z)$. We know that $y$ and $z$ are actually related, and we can use this relation to find how would the random variable $y$ (which is actually a transformation of the random variable $z$) be distributed. This is done with the Jacobian. Therefore:
 
 $$
 p_y(y|\theta)=p_z(z|\theta)|\frac{dz}{dy}|=\frac{1}{|y|}p_z(z|\theta)=e^{-z}p_z(z|\theta)
@@ -407,17 +414,19 @@ az.loo(idata_normal)
 
 
     Computed from 2000 by 30 log-likelihood matrix
-    
+
            Estimate       SE
-    IC_loo   192.53    11.23
-    p_loo      1.74        -
+    IC_loo   195.49    11.80
+    p_loo      1.46        -
 
 
 
-## References
-Vehtari, A., Gelman, A., and Gabry, J. (2017):  Practical Bayesian Model Evaluation Using Leave-One-OutCross-Validation and WAIC, _Statistics and Computing_, vol. 27(5), pp. 1413–1432.
+## Real example
 
 
 ```python
 
 ```
+
+## References
+Vehtari, A., Gelman, A., and Gabry, J. (2017):  Practical Bayesian Model Evaluation Using Leave-One-OutCross-Validation and WAIC, _Statistics and Computing_, vol. 27(5), pp. 1413–1432.
