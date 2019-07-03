@@ -3,7 +3,7 @@ layout: post
 title:  "The Proposal"
 description: "Writing the proposal for ArviZ"
 date:   2019-04-08 00:03:28 +0200
-image: assets/images/gnatt.png
+image: assets/images/gantt.png
 
 ---
 
@@ -33,17 +33,17 @@ section.
 
 I felt that the timeline explained as a list of tasks with some planned start
 and end date did not provide a good idea of the time dedicated to each task nor
-the relations between them. Therefore I decided to use a Gnatt chart to make the
+the relations between them. Therefore I decided to use a Gantt chart to make the
 timeline more visual and easy to follow.
 
-<img src="{{ '/assets/images/gnatt.png' | prepend: site.baseurl | prepend: site.url }}" alt="Gnatt Chart" class="image center">
+<img src="{{ '/assets/images/gantt.png' | prepend: site.baseurl | prepend: site.url }}" alt="Gantt Chart" class="image center">
 
-This Gnatt chart was built with matplotlib. It allows the reader to distinguish
+This Gantt chart was built with matplotlib. It allows the reader to distinguish
 clearly between the different task types as well as their length and relations.
 Moreover, it shows the key dates of the program which can be identified at first
 glance. The explanation of the labels can be found in the
-[complete proposal](https://github.com/OriolAbril/gsoc2019/blob/master/proposal.pdf). Below there is the code used to generate the Gnatt Chart:
+[complete proposal](https://github.com/OriolAbril/gsoc2019/blob/master/proposal.pdf). Below there is the code used to generate the Gantt Chart:
 
 {% highlight python %}
-{% include_relative  code/gnatt.py %}
+{% include_relative  code/gantt.py %}
 {% endhighlight %}
