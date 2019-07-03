@@ -39,32 +39,46 @@ data = {
 
 
 ```python
-lognormal_code = """
-data {
-  int<lower=0> N;
-  vector[N] y;
-}
-
-parameters {
-  real mu;
-  real<lower=0> sigma;
-}
-
-model {
-    y ~ lognormal(mu, sigma);
-}
-
-generated quantities {
-    vector[N] log_lik;
-    vector[N] y_hat;
-
-    for (i in 1:N) {
-        log_lik[i] = lognormal_lpdf(y[i] | mu, sigma);
-        y_hat[i] = lognormal_rng(mu, sigma);
-    }
-}
-"""
+with open("lognormal.stan", "r") as f:
+    lognormal_code = f.read()
 ```
+
+<details>
+<summary markdown='span'>Stan code for LogNormal model
+</summary>
+
+
+```python
+print(lognormal_code)
+```
+
+    data {
+      int<lower=0> N;
+      vector[N] y;
+    }
+
+    parameters {
+      real mu;
+      real<lower=0> sigma;
+    }
+
+    model {
+        y ~ lognormal(mu, sigma);
+    }
+
+    generated quantities {
+        vector[N] log_lik;
+        vector[N] y_hat;
+
+        for (i in 1:N) {
+            log_lik[i] = lognormal_lpdf(y[i] | mu, sigma);
+            y_hat[i] = lognormal_rng(mu, sigma);
+        }
+    }
+
+
+
+</details>
 
 
 ```python
@@ -72,7 +86,7 @@ sm_lognormal = pystan.StanModel(model_code=lognormal_code)
 fit_lognormal = sm_lognormal.sampling(data=data, iter=1000, chains=4)
 ```
 
-    INFO:pystan:COMPILING THE C++ CODE FOR MODEL anon_model_3596002ce22937246377a0479b804226 NOW.
+    INFO:pystan:COMPILING THE C++ CODE FOR MODEL anon_model_fa0385baccb7b330f85e0cacaa99fa9d NOW.
 
 
 
@@ -87,32 +101,46 @@ idata_lognormal = az.from_pystan(
 
 
 ```python
-normal_on_log_code = """
-data {
-  int<lower=0> N;
-  vector[N] logy;
-}
-
-parameters {
-  real mu;
-  real<lower=0> sigma;
-}
-
-model {
-    logy ~ normal(mu, sigma);
-}
-
-generated quantities {
-    vector[N] log_lik;
-    vector[N] logy_hat;
-
-    for (i in 1:N) {
-        log_lik[i] = normal_lpdf(logy[i] | mu, sigma);
-        logy_hat[i] = normal_rng(mu, sigma);
-    }
-}
-"""
+with open("normal_on_log.stan", "r") as f:
+    normal_on_log_code = f.read()
 ```
+
+<details>
+<summary markdown='span'>Stan code for Normal on Log data model
+</summary>
+
+
+```python
+print(normal_on_log_code)
+```
+
+    data {
+      int<lower=0> N;
+      vector[N] logy;
+    }
+
+    parameters {
+      real mu;
+      real<lower=0> sigma;
+    }
+
+    model {
+        logy ~ normal(mu, sigma);
+    }
+
+    generated quantities {
+        vector[N] log_lik;
+        vector[N] logy_hat;
+
+        for (i in 1:N) {
+            log_lik[i] = normal_lpdf(logy[i] | mu, sigma);
+            logy_hat[i] = normal_rng(mu, sigma);
+        }
+    }
+
+
+
+</details>
 
 
 ```python
@@ -120,7 +148,7 @@ sm_normal = pystan.StanModel(model_code=normal_on_log_code)
 fit_normal = sm_normal.sampling(data=data, iter=1000, chains=4)
 ```
 
-    INFO:pystan:COMPILING THE C++ CODE FOR MODEL anon_model_acd7c874588f1c862727f931f4dbf916 NOW.
+    INFO:pystan:COMPILING THE C++ CODE FOR MODEL anon_model_6b25918853568e528afbe629c1103e09 NOW.
 
 
 
@@ -177,30 +205,30 @@ az.summary(idata_lognormal)
   <tbody>
     <tr>
       <th>mu</th>
-      <td>1.826</td>
-      <td>0.192</td>
-      <td>1.474</td>
-      <td>2.182</td>
-      <td>0.005</td>
-      <td>0.003</td>
-      <td>1605.0</td>
-      <td>1602.0</td>
-      <td>1619.0</td>
-      <td>1197.0</td>
+      <td>2.093</td>
+      <td>0.216</td>
+      <td>1.691</td>
+      <td>2.504</td>
+      <td>0.006</td>
+      <td>0.004</td>
+      <td>1219.0</td>
+      <td>1213.0</td>
+      <td>1227.0</td>
+      <td>1255.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>sigma</th>
-      <td>1.019</td>
-      <td>0.139</td>
-      <td>0.777</td>
-      <td>1.277</td>
+      <td>1.172</td>
+      <td>0.163</td>
+      <td>0.882</td>
+      <td>1.477</td>
       <td>0.004</td>
       <td>0.003</td>
-      <td>1295.0</td>
-      <td>1252.0</td>
-      <td>1382.0</td>
-      <td>1282.0</td>
+      <td>1485.0</td>
+      <td>1407.0</td>
+      <td>1588.0</td>
+      <td>1121.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -251,30 +279,30 @@ az.summary(idata_normal)
   <tbody>
     <tr>
       <th>mu</th>
-      <td>1.818</td>
-      <td>0.193</td>
-      <td>1.468</td>
-      <td>2.198</td>
-      <td>0.005</td>
+      <td>2.099</td>
+      <td>0.208</td>
+      <td>1.708</td>
+      <td>2.487</td>
+      <td>0.006</td>
       <td>0.004</td>
-      <td>1363.0</td>
-      <td>1363.0</td>
-      <td>1359.0</td>
-      <td>909.0</td>
+      <td>1405.0</td>
+      <td>1405.0</td>
+      <td>1431.0</td>
+      <td>1267.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>sigma</th>
-      <td>1.028</td>
-      <td>0.150</td>
-      <td>0.766</td>
-      <td>1.307</td>
+      <td>1.168</td>
+      <td>0.159</td>
+      <td>0.892</td>
+      <td>1.471</td>
       <td>0.005</td>
       <td>0.003</td>
-      <td>1030.0</td>
-      <td>964.0</td>
-      <td>1149.0</td>
-      <td>735.0</td>
+      <td>1135.0</td>
+      <td>1107.0</td>
+      <td>1208.0</td>
+      <td>1129.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -291,7 +319,7 @@ az.plot_ess(idata_normal, kind="quantile", color="k");
 ```
 
 
-![png]({{site.url}}/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_16_0.png)
+![png]({{ site.url }}/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_22_0.png)
 
 
 ### Posterior validation
@@ -303,7 +331,7 @@ az.plot_posterior(idata_lognormal);
 ```
 
 
-![png]({{site.url}}/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_18_0.png)
+![png]({{ site.url }}/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_24_0.png)
 
 
 
@@ -312,7 +340,7 @@ az.plot_posterior(idata_normal);
 ```
 
 
-![png]({{site.url}}/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_19_0.png)
+![png]({{ site.url }}/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_25_0.png)
 
 
 ### Calculate LOO-CV
@@ -329,8 +357,8 @@ az.loo(idata_lognormal, pointwise=True)
     Computed from 2000 by 30 log-likelihood matrix
 
            Estimate       SE
-    IC_loo   195.38    11.82
-    p_loo      1.46        -
+    IC_loo   220.68    14.29
+    p_loo      1.68        -
     ------
 
     Pareto k diagnostic values:
@@ -353,8 +381,8 @@ az.loo(idata_normal, pointwise=True)
     Computed from 2000 by 30 log-likelihood matrix
 
            Estimate       SE
-    IC_loo    86.57     5.25
-    p_loo      1.46        -
+    IC_loo    94.45     6.67
+    p_loo      1.54        -
     ------
 
     Pareto k diagnostic values:
@@ -416,8 +444,8 @@ az.loo(idata_normal)
     Computed from 2000 by 30 log-likelihood matrix
 
            Estimate       SE
-    IC_loo   195.49    11.80
-    p_loo      1.46        -
+    IC_loo   220.34    14.22
+    p_loo      1.54        -
 
 
 

@@ -38,6 +38,8 @@ highlighter: rouge
 kramdown:
   syntax_highlighter: rouge
   math_engine: mathjax
+  parse_block_html: true
+  syntax_highlighter_opts: {guess_lang: false, default_lang: lexer}
 
 # sass:
 #     style: compressed
