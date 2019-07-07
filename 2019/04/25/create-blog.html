@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<!--
+	Forty by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+
+<head>
+	<title>GSoC blog</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<!--[if lte IE 8]><script src="/assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="/assets/css/main.css" />
+	<!--[if lte IE 9]><link rel="stylesheet" href="/assets/css/ie9.css" /><![endif]-->
+	<!--[if lte IE 8]><link rel="stylesheet" href="/assets/css/ie8.css" /><![endif]-->
+
+    <!-- Favicon head tag -->
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+</head>
+
+
+<body>
+
+    <!-- Wrapper -->
+<div id="wrapper">
+
+<!-- Header -->
+<header id="header">
+	<a href="/" class="logo"><strong>GSoC blog</strong> <span></span></a>
+	<nav>
+		<a href="#menu">Menu</a>
+	</nav>
+</header>
+
+<!-- Menu -->
+<nav id="menu">
+	<ul class="links">
+        
+		    
+		
+		    
+		
+		    
+		        <li><a href="/">Home</a></li>
+	    	
+		
+		    
+		
+		    
+		
+        
+		
+		    
+		
+		    
+		
+		    
+		
+		    
+		        <li><a href="/oss.html">Open Source Software</a></li>
+		    
+		
+		    
+		        <li><a href="/about.html">About me</a></li>
+		    
+		
+	</ul>
+</nav>
+
+
+
+<!-- Main -->
+<div id="main" class="alt">
+
+<!-- One -->
+<section id="one">
+	<div class="inner">
+		<header class="major">
+			<h1>The Blog</h1>
+		</header>
+        
+
+		<p><p>One of the requisites of participating in GSoC with NumFOCUS is to blog about the experience.
+To this end, they provide a <a href="https://github.com/numfocus/gsoc/blob/master/gsoc_student_blog_setup.md">guide</a>
+that helps setting up the website with <a href="https://jekyllrb.com/">Jekyll</a> and <a href="https://pages.github.com/">GitHub pages</a>.</p>
+
+<p>The first step was to build the blog locally using Jekyll and Ruby, following thw guide provided by NumFOCUS.
+By default, the theme used was <a href="https://github.com/jekyll/minima">minima</a>, which runs smoothly without
+any extra configuration. In my case though, I decided to use a custom theme. Moreover, I decided to use a theme not
+supported by GitHub pages. The main reason was to practice customizing themes with the long term goal in mind to use
+a custom theme for a future personal website. Using a theme not supported by GitHub pages obiously implies more work
+but, in my opinion, it was worth it.</p>
+
+<p>I had heard about the <a href="https://html5up.net/">HTML5 UP</a> themes, and after some searching, I found a port to Jekyll of
+one of the themes I was interested in: <a href="https://github.com/andrewbanchich/forty-jekyll-theme">Forty</a>. Thus, I decided
+to use this theme for my blog. I started customizing the layouts and templates locally checking the build with the
+command <code>bundle exec jekyll serve</code>. It was my first conding experience with Ruby and the second time using html,
+and some thing stroke me as odd. The main unexpected behaviour was the fact that using <code>jekyll build</code> and opening
+the <em>index.html</em> file did not show the website properly, even when <code>jekyll serve</code> did. I also needed some time to
+get used to <a href="https://jekyllrb.com/docs/liquid/">Liquid</a> mainly because it works with both html and markdown but not
+all markdown is properly converted when building the site and this gave me some headaches.</p>
+
+<p>The next step was to publish the website using GitHub pages. Creating the repository and so on had no difficulties,
+whereas building the website in GitHub did. This however may not be indicative of the difficulty of the two tasks
+because I have some experience with GitHub, managing repositories and Git, whereas it was my first contact with Jekyll,
+Ruby and building a website without sphinx. Eventually, I found out/accepted that GitHub pages has limited support for
+external Jekyll and Ruby plugins, but if their source files are included in the repository, things are bound to work
+sooner or later.</p>
+
+<p>Overall, I am really happy with my result and I will surely use GitHub pages to host more websites due to its ease of use
+while allowing complete customization too. I still feel like I spend an execcive ammout of time for every single edit, but
+little by little I am starting to feel more comfortable with it. In additon, once the template has been created, the
+work is basically writing text posts, which can be written in Markdown.</p>
+</p>
+	</div>
+</section>
+
+</div>
+
+    <!-- Footer -->
+	<footer id="footer">
+		<div class="inner">
+			<ul class="copyright">
+				
+				
+				
+				
+				
+				
+				
+				
+				<li><a href="https://github.com/OriolAbril" class="icon fa-github" target="_blank"><span class="label">GitHub</span></a></li>
+				
+				
+				
+				<li>&copy; GSoC blog Oriol Abril</li>
+				<li>Design: <a href="https://html5up.net" target="_blank">HTML5 UP</a></li>
+				<li>Jekyll integration: <a href="https://gitlab.com/andrewbanchich" target="_blank">Andrew Banchich</a></li>
+			</ul>
+		</div>
+	</footer>
+
+</div>
+
+<!-- Scripts -->
+	<script src="/assets/js/jquery.min.js"></script>
+	<script src="/assets/js/jquery.scrolly.min.js"></script>
+	<script src="/assets/js/jquery.scrollex.min.js"></script>
+	<script src="/assets/js/skel.min.js"></script>
+	<script src="/assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="/assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="/assets/js/main.js"></script>
+
+
+</body>
+
+</html>

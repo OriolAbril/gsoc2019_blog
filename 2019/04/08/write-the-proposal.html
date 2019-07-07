@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<!--
+	Forty by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+
+<head>
+	<title>GSoC blog</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<!--[if lte IE 8]><script src="/assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="/assets/css/main.css" />
+	<!--[if lte IE 9]><link rel="stylesheet" href="/assets/css/ie9.css" /><![endif]-->
+	<!--[if lte IE 8]><link rel="stylesheet" href="/assets/css/ie8.css" /><![endif]-->
+
+    <!-- Favicon head tag -->
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+</head>
+
+
+<body>
+
+    <!-- Wrapper -->
+<div id="wrapper">
+
+<!-- Header -->
+<header id="header">
+	<a href="/" class="logo"><strong>GSoC blog</strong> <span></span></a>
+	<nav>
+		<a href="#menu">Menu</a>
+	</nav>
+</header>
+
+<!-- Menu -->
+<nav id="menu">
+	<ul class="links">
+        
+		    
+		
+		    
+		
+		    
+		        <li><a href="/">Home</a></li>
+	    	
+		
+		    
+		
+		    
+		
+        
+		
+		    
+		
+		    
+		
+		    
+		
+		    
+		        <li><a href="/oss.html">Open Source Software</a></li>
+		    
+		
+		    
+		        <li><a href="/about.html">About me</a></li>
+		    
+		
+	</ul>
+</nav>
+
+
+
+<!-- Main -->
+<div id="main" class="alt">
+
+<!-- One -->
+<section id="one">
+	<div class="inner">
+		<header class="major">
+			<h1>The Proposal</h1>
+		</header>
+        
+
+		<p><p>I started my proposal following the examples in the
+<a href="https://google.github.io/gsocguides/student/">Student Guide</a>.
+They can be found
+<a href="https://google.github.io/gsocguides/student/proposal-example-1">here</a> and
+ <a href="https://google.github.io/gsocguides/student/proposal-example-2">here</a>.
+ To begin with, I created a Google Docs file, in order to make it easy for Arviz
+ core developers to comment and review the proposal draft.</p>
+
+<p>I had many problems trying to write a coherent timeline, because I was not
+an expert in ArviZ nor in the algorithms involved. Thus, I had nearly no
+previous relevant experience to use as “timing guide”. Therefore, I found my
+contributions to ArviZ -prior to writing the proposal- to be an
+invaluable help when writing the timeline. I spent several days working on the
+proposal alone and once I was relatively happy with the draft I shared it with
+the ArviZ community.</p>
+
+<p>After receiving the comments of the possible mentors, I started paying more
+attention to the format of the proposal. I created a
+<a href="https://github.com/OriolAbril/gsoc2019">GitHub repo</a> to continue developing
+the proposal, now following the format of the
+<a href="https://github.com/numfocus/gsoc/blob/master/templates/proposal.md">NumFOCUS template</a>.
+The generated proposal follows quite closely the template except in the timeline
+section.</p>
+
+<p>I felt that the timeline explained as a list of tasks with some planned start
+and end date did not provide a good idea of the time dedicated to each task nor
+the relations between them. Therefore I decided to use a Gantt chart to make the
+timeline more visual and easy to follow.</p>
+
+<p><img src="/assets/images/gantt.png" alt="Gantt Chart" class="image center" /></p>
+
+<p>This Gantt chart was built with matplotlib. It allows the reader to distinguish
+clearly between the different task types as well as their length and relations.
+Moreover, it shows the key dates of the program which can be identified at first
+glance. The explanation of the labels can be found in the
+<a href="https://github.com/OriolAbril/gsoc2019/blob/master/proposal.pdf">complete proposal</a>. Below there is the code used to generate the Gantt Chart:</p>
+
+<figure class="highlight">
+  <pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.dates</span> <span class="k">as</span> <span class="n">md</span>
+<span class="kn">import</span> <span class="nn">matplotlib.patches</span> <span class="k">as</span> <span class="n">mpatch</span>
+<span class="kn">import</span> <span class="nn">matplotlib.lines</span> <span class="k">as</span> <span class="n">mlines</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+
+<span class="k">def</span> <span class="nf">mpl_date</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">md</span><span class="o">.</span><span class="n">date2num</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s">'</span><span class="si">%</span><span class="s">d-</span><span class="si">%</span><span class="s">m-</span><span class="si">%</span><span class="s">Y'</span><span class="p">))</span>
+
+<span class="c1"># Define task start and end date
+</span><span class="n">tasks</span> <span class="o">=</span> <span class="p">{</span><span class="s">'P1'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'1-4'</span><span class="p">,</span> <span class="s">'25-4'</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+         <span class="s">'P2'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'1-4'</span><span class="p">,</span> <span class="s">'6-5'</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+         <span class="s">'P3'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'1-4'</span><span class="p">,</span> <span class="s">'6-5'</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+         <span class="s">'P4'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'25-4'</span><span class="p">,</span> <span class="s">'6-5'</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+         <span class="s">'P5'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'6-5'</span><span class="p">,</span> <span class="s">'12-5'</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+         <span class="s">'P6'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'6-5'</span><span class="p">,</span> <span class="s">'19-5'</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+         <span class="s">'P7'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'6-5'</span><span class="p">,</span> <span class="s">'19-5'</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+         <span class="s">'T1'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'19-5'</span><span class="p">,</span> <span class="s">'9-6'</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+         <span class="s">'T2'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'27-5'</span><span class="p">,</span> <span class="s">'9-6'</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+         <span class="s">'T3'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'9-6'</span><span class="p">,</span> <span class="s">'24-6'</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+         <span class="s">'T4'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'9-6'</span><span class="p">,</span> <span class="s">'24-6'</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+         <span class="s">'T5'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'24-6'</span><span class="p">,</span> <span class="s">'6-7'</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+         <span class="s">'T6'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'24-6'</span><span class="p">,</span> <span class="s">'6-7'</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+         <span class="s">'T7'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'24-6'</span><span class="p">,</span> <span class="s">'6-7'</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+         <span class="s">'T8'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'24-6'</span><span class="p">,</span> <span class="s">'30-12'</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+         <span class="s">'T9'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'7-7'</span><span class="p">,</span> <span class="s">'22-7'</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+         <span class="s">'T10'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'22-7'</span><span class="p">,</span> <span class="s">'19-8'</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+         <span class="s">'T11'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'22-7'</span><span class="p">,</span> <span class="s">'30-12'</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+         <span class="s">'T12'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'6-8'</span><span class="p">,</span> <span class="s">'19-8'</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+         <span class="s">'A1'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'19-8'</span><span class="p">,</span> <span class="s">'30-12'</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+         <span class="s">'A2'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'19-8'</span><span class="p">,</span> <span class="s">'30-12'</span><span class="p">,</span> <span class="mi">2</span><span class="p">]}</span>
+<span class="c1"># define dict with task relations
+</span><span class="n">dependencies</span> <span class="o">=</span> <span class="p">{</span><span class="s">'P4'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'P1'</span><span class="p">,</span> <span class="s">'P2'</span><span class="p">],</span>
+                <span class="s">'P7'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'P4'</span><span class="p">],</span>
+                <span class="s">'T1'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'P2'</span><span class="p">,</span> <span class="s">'P7'</span><span class="p">],</span>
+                <span class="s">'T2'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'T1'</span><span class="p">],</span>
+                <span class="s">'T3'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'T1'</span><span class="p">],</span>
+                <span class="s">'T4'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'P7'</span><span class="p">],</span>
+                <span class="s">'T5'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'T4'</span><span class="p">],</span>
+                <span class="s">'T6'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'T4'</span><span class="p">]}</span>
+<span class="c1"># Define task dataframe
+</span><span class="n">df_whole</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
+    <span class="n">tasks</span><span class="p">,</span>
+    <span class="n">orient</span><span class="o">=</span><span class="s">'index'</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">'Start_date'</span><span class="p">,</span> <span class="s">'End_date'</span><span class="p">,</span> <span class="s">'offset'</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df_whole</span><span class="p">[[</span><span class="s">'Start_date'</span><span class="p">,</span> <span class="s">'End_date'</span><span class="p">]]</span> <span class="o">+</span> <span class="s">'-2019'</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s">'</span><span class="si">%</span><span class="s">d-</span><span class="si">%</span><span class="s">m-</span><span class="si">%</span><span class="s">Y'</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="c1"># Define colors
+</span><span class="n">color_code</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'P'</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.6015686274509804</span><span class="p">,</span> <span class="mf">0.7254901960784313</span><span class="p">,</span> <span class="mf">0.8494117647058823</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+    <span class="s">'T'</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.006274509803921568</span><span class="p">,</span> <span class="mf">0.4729411764705882</span><span class="p">,</span> <span class="mf">0.46431372549019606</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+    <span class="s">'A'</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.45176470588235296</span><span class="p">,</span> <span class="mf">0.7670895809304115</span><span class="p">,</span> <span class="mf">0.4612072279892349</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">color_code</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span><span class="o">.</span><span class="n">values</span>
+<span class="c1"># define a boolean array, True for arrow-like tasks, rectangle otherwise
+</span><span class="n">start</span> <span class="o">=</span> <span class="n">mpl_date</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">Start_date</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="n">end</span> <span class="o">=</span> <span class="n">mpl_date</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">End_date</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="n">y_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">))[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">barhwidth</span> <span class="o">=</span> <span class="mf">0.8</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">end</span><span class="o">&lt;</span><span class="n">mpl_date</span><span class="p">(</span><span class="s">'9-9-2019'</span><span class="p">)</span>
+<span class="c1"># Plot
+# Plot rectangular tasks
+</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">y_values</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> 
+        <span class="p">(</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)[</span><span class="n">mask</span><span class="p">],</span> 
+        <span class="n">left</span><span class="o">=</span><span class="n">start</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> 
+        <span class="n">align</span><span class="o">=</span><span class="s">'center'</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span>
+        <span class="n">edgecolor</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="n">barhwidth</span><span class="p">)</span>
+<span class="c1"># Plot arrow tasks
+</span><span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">end</span><span class="o">&gt;</span><span class="n">mpl_date</span><span class="p">(</span><span class="s">'1-11-2019'</span><span class="p">)]:</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">==</span><span class="n">task</span>
+    <span class="n">x_start</span> <span class="o">=</span> <span class="n">start</span><span class="p">[</span><span class="n">mask</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">x_end</span> <span class="o">=</span> <span class="n">mpl_date</span><span class="p">(</span><span class="s">'9-9-2019'</span><span class="p">)</span>
+    <span class="n">y_start</span> <span class="o">=</span> <span class="n">y_values</span><span class="p">[</span><span class="n">mask</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">arrow</span><span class="p">(</span><span class="n">x_start</span><span class="p">,</span>
+             <span class="n">y_start</span><span class="p">,</span>
+             <span class="n">x_end</span><span class="o">-</span><span class="n">x_start</span><span class="p">,</span>
+             <span class="mi">0</span><span class="p">,</span>
+             <span class="n">facecolor</span><span class="o">=</span><span class="n">color_code</span><span class="p">[</span><span class="n">task</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+             <span class="n">width</span><span class="o">=</span><span class="n">barhwidth</span><span class="p">,</span>
+             <span class="n">head_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+             <span class="n">head_width</span><span class="o">=</span><span class="mf">0.2</span><span class="o">+</span><span class="n">barhwidth</span><span class="p">,</span>
+             <span class="n">length_includes_head</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+             <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="c1"># Plot key dates
+</span><span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">mpl_date</span><span class="p">(</span><span class="s">'6-5-2019'</span><span class="p">),</span><span class="n">color</span><span class="o">=</span><span class="s">'g'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">mpl_date</span><span class="p">(</span><span class="s">'27-5-2019'</span><span class="p">),</span><span class="n">color</span><span class="o">=</span><span class="s">'darkgrey'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">mpl_date</span><span class="p">(</span><span class="s">'24-6-2019'</span><span class="p">),</span><span class="n">color</span><span class="o">=</span><span class="s">'grey'</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s">'--'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">mpl_date</span><span class="p">(</span><span class="s">'22-7-2019'</span><span class="p">),</span><span class="n">color</span><span class="o">=</span><span class="s">'grey'</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s">'--'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">mpl_date</span><span class="p">(</span><span class="s">'19-8-2019'</span><span class="p">),</span><span class="n">color</span><span class="o">=</span><span class="s">'red'</span><span class="p">)</span>
+<span class="c1"># Plot dependency arrows
+</span><span class="k">for</span> <span class="n">child</span><span class="p">,</span> <span class="n">parents</span> <span class="ow">in</span> <span class="n">dependencies</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="n">child</span>
+    <span class="n">x_end</span> <span class="o">=</span> <span class="n">start</span><span class="p">[</span><span class="n">mask</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">y_end</span> <span class="o">=</span> <span class="n">y_values</span><span class="p">[</span><span class="n">mask</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">parents</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="n">parent</span>
+        <span class="n">x_start</span> <span class="o">=</span> <span class="n">start</span><span class="p">[</span><span class="n">mask</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">df_whole</span><span class="o">.</span><span class="n">offset</span><span class="p">[</span><span class="n">mask</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">y_start</span> <span class="o">=</span> <span class="n">y_values</span><span class="p">[</span><span class="n">mask</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">x_end</span> <span class="o">-</span> <span class="n">x_start</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="n">y_end</span> <span class="o">-</span> <span class="n">y_start</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s">'edgecolor'</span><span class="p">:</span><span class="bp">None</span><span class="p">,</span><span class="s">'facecolor'</span><span class="p">:</span><span class="s">'k'</span><span class="p">,</span><span class="s">'length_includes_head'</span><span class="p">:</span><span class="bp">True</span><span class="p">}</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">arrow</span><span class="p">(</span><span class="n">x_start</span><span class="p">,</span><span class="n">y_start</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">dy</span><span class="p">,</span><span class="n">width</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span><span class="n">head_length</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">head_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">arrow</span><span class="p">(</span><span class="n">x_start</span><span class="p">,</span><span class="n">y_start</span><span class="o">+</span><span class="n">dy</span><span class="p">,</span><span class="n">dx</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">width</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span><span class="n">head_length</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span><span class="n">head_width</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="c1"># Format axis
+</span><span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">md</span><span class="o">.</span><span class="n">DateFormatter</span><span class="p">(</span><span class="s">'</span><span class="si">%</span><span class="s">d </span><span class="si">%</span><span class="s">b'</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">md</span><span class="o">.</span><span class="n">DayLocator</span><span class="p">(</span><span class="n">bymonthday</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">21</span><span class="p">]))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">mpl_date</span><span class="p">([</span><span class="s">'25-3-2019'</span><span class="p">,</span><span class="s">'9-9-2019'</span><span class="p">]))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">y_values</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">y_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s">'y'</span><span class="p">,</span> <span class="n">labelleft</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">labelright</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Create personalized legend
+</span><span class="n">leg</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s">'Preparation'</span><span class="p">,</span> <span class="s">'Tasks'</span><span class="p">,</span> <span class="s">'After project'</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">color</span><span class="p">,</span><span class="n">name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">color_code</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span><span class="n">names</span><span class="p">):</span>
+    <span class="n">leg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mpatch</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
+<span class="n">lines</span> <span class="o">=</span> <span class="p">[[</span><span class="s">'Students accepted'</span><span class="p">,</span> <span class="s">'g'</span><span class="p">,</span> <span class="s">'-'</span><span class="p">],</span>
+         <span class="p">[</span><span class="s">'Start coding'</span><span class="p">,</span> <span class="s">'darkgrey'</span><span class="p">,</span> <span class="s">'-'</span><span class="p">],</span>
+         <span class="p">[</span><span class="s">'Evaluations'</span><span class="p">,</span> <span class="s">'grey'</span><span class="p">,</span> <span class="s">'--'</span><span class="p">],</span>
+         <span class="p">[</span><span class="s">'Final evaluation'</span><span class="p">,</span> <span class="s">'red'</span><span class="p">,</span><span class="s">'-'</span><span class="p">]]</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+    <span class="n">leg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mlines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">color</span><span class="o">=</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">linestyle</span><span class="o">=</span><span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">leg</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">autofmt_xdate</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></code></pre>
+</figure>
+
+</p>
+	</div>
+</section>
+
+</div>
+
+    <!-- Footer -->
+	<footer id="footer">
+		<div class="inner">
+			<ul class="copyright">
+				
+				
+				
+				
+				
+				
+				
+				
+				<li><a href="https://github.com/OriolAbril" class="icon fa-github" target="_blank"><span class="label">GitHub</span></a></li>
+				
+				
+				
+				<li>&copy; GSoC blog Oriol Abril</li>
+				<li>Design: <a href="https://html5up.net" target="_blank">HTML5 UP</a></li>
+				<li>Jekyll integration: <a href="https://gitlab.com/andrewbanchich" target="_blank">Andrew Banchich</a></li>
+			</ul>
+		</div>
+	</footer>
+
+</div>
+
+<!-- Scripts -->
+	<script src="/assets/js/jquery.min.js"></script>
+	<script src="/assets/js/jquery.scrolly.min.js"></script>
+	<script src="/assets/js/jquery.scrollex.min.js"></script>
+	<script src="/assets/js/skel.min.js"></script>
+	<script src="/assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="/assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="/assets/js/main.js"></script>
+
+
+</body>
+
+</html>

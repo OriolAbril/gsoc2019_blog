@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<!--
+	Forty by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+
+<head>
+	<title>GSoC blog</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<!--[if lte IE 8]><script src="/assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="/assets/css/main.css" />
+	<!--[if lte IE 9]><link rel="stylesheet" href="/assets/css/ie9.css" /><![endif]-->
+	<!--[if lte IE 8]><link rel="stylesheet" href="/assets/css/ie8.css" /><![endif]-->
+
+    <!-- Favicon head tag -->
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+</head>
+
+
+<body>
+
+    <!-- Wrapper -->
+<div id="wrapper">
+
+<!-- Header -->
+<header id="header">
+	<a href="/" class="logo"><strong>GSoC blog</strong> <span></span></a>
+	<nav>
+		<a href="#menu">Menu</a>
+	</nav>
+</header>
+
+<!-- Menu -->
+<nav id="menu">
+	<ul class="links">
+        
+		    
+		
+		    
+		
+		    
+		        <li><a href="/">Home</a></li>
+	    	
+		
+		    
+		
+		    
+		
+        
+		
+		    
+		
+		    
+		
+		    
+		
+		    
+		        <li><a href="/oss.html">Open Source Software</a></li>
+		    
+		
+		    
+		        <li><a href="/about.html">About me</a></li>
+		    
+		
+	</ul>
+</nav>
+
+
+
+<!-- Main -->
+<div id="main" class="alt">
+
+<!-- One -->
+<section id="one">
+	<div class="inner">
+		<header class="major">
+			<h1>The Project</h1>
+		</header>
+        
+
+		<p><p>My GSoC project is in the field of Bayesian modelling. The aim of modelling is
+to help to explain, define or estimate a given aspect of the world based on
+known or more accessible data. The adjective Bayesian specifies how this is
+done. From a probabilistic point of view, it uses data to update our
+current state of knowledge of the world. Thus, it allows to take into account
+both the data available and the current knowledge on the topic. Bayesian
+modelling is used in many fields, from psychology to economics or
+astrophysics.</p>
+
+<p>Inside Bayesian modelling, it covers mainly 2
+different topics: knowing if the inference
+algorithm has performed correctly and knowing which one out of several models
+better predicts the quantity of interest.</p>
+
+<h3 id="convergence-assessment">Convergence assessment</h3>
+
+<p>Convergence assessment stands for knowing whether or not the inference
+algorithm has converged. This is important because these algorithms are proven
+to work <em>assimptotically</em>, which is when the number of iterations of the
+algorithm becomes infinite. However, in the real world, the number of
+iterations must be finite, thus, it is crucial to know (or at least estimate)
+when the algorithm is not performing properly because, in this case, the
+results cannot be trusted.</p>
+
+<h3 id="information-criteria">Information Criteria</h3>
+
+<p>Information Criteria try to evaluate the predictive accuracy of a given model
+on <strong>new</strong> data. For example, if we used a thousand patients to create and calibrate
+a model of the relation between Alzheimer and fungal infections, information
+criteria estimate how accurate
+will this model be when used <strong>outside</strong> these thousand patients. This can be
+an important reason to choose when there are several models trying to explain
+the same phenomenon. This is intrinsically a very difficult task which can
+only expect to estimate this accuracy, never to know it, because the <strong>new</strong>
+data is not available, however, its relevance in model comparison makes it
+worth the risk.</p>
+
+<h3 id="why-all-this">Why all this?</h3>
+
+<p>Modelling helps us understand the world around us, and this knowledge can then
+be used to make our lives better; understanding the movement of electrons in
+semiconductor materials allowed the creation of transistors and processors,
+understanding the relation between some genes and an illness can help in its
+prevention and diagnosis. Moreover, in some cases, knowing the uncertainty of
+our models is also really important, if an autonomous car believes it has no
+person ahead but there is large uncertainty in the measurement/prediction,
+it should probably stop anyway just in case. In many of these models, the
+Bayesian perspective has a clear edge. Therefore, I believe that making this
+king of modelling more accessible and straightforward can have a great impact
+in many aspects.</p>
+
+<p>In addition, ArviZ pays a lot of attention on its documentation, explaining
+and encouraging best practices in the field of Bayesian modelling, which can
+be unknown and tricky due to its peculiar point of view, which can differ from
+what is generally assumed as known or what is most common.</p>
+</p>
+	</div>
+</section>
+
+</div>
+
+    <!-- Footer -->
+	<footer id="footer">
+		<div class="inner">
+			<ul class="copyright">
+				
+				
+				
+				
+				
+				
+				
+				
+				<li><a href="https://github.com/OriolAbril" class="icon fa-github" target="_blank"><span class="label">GitHub</span></a></li>
+				
+				
+				
+				<li>&copy; GSoC blog Oriol Abril</li>
+				<li>Design: <a href="https://html5up.net" target="_blank">HTML5 UP</a></li>
+				<li>Jekyll integration: <a href="https://gitlab.com/andrewbanchich" target="_blank">Andrew Banchich</a></li>
+			</ul>
+		</div>
+	</footer>
+
+</div>
+
+<!-- Scripts -->
+	<script src="/assets/js/jquery.min.js"></script>
+	<script src="/assets/js/jquery.scrolly.min.js"></script>
+	<script src="/assets/js/jquery.scrollex.min.js"></script>
+	<script src="/assets/js/skel.min.js"></script>
+	<script src="/assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="/assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="/assets/js/main.js"></script>
+
+
+</body>
+
+</html>

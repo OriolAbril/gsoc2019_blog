@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<!--
+	Forty by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+
+<head>
+	<title>GSoC blog</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<!--[if lte IE 8]><script src="/assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="/assets/css/main.css" />
+	<!--[if lte IE 9]><link rel="stylesheet" href="/assets/css/ie9.css" /><![endif]-->
+	<!--[if lte IE 8]><link rel="stylesheet" href="/assets/css/ie8.css" /><![endif]-->
+
+    <!-- Favicon head tag -->
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+</head>
+
+
+<body>
+
+    <!-- Wrapper -->
+<div id="wrapper">
+
+<!-- Header -->
+<header id="header">
+	<a href="/" class="logo"><strong>GSoC blog</strong> <span></span></a>
+	<nav>
+		<a href="#menu">Menu</a>
+	</nav>
+</header>
+
+<!-- Menu -->
+<nav id="menu">
+	<ul class="links">
+        
+		    
+		
+		    
+		
+		    
+		        <li><a href="/">Home</a></li>
+	    	
+		
+		    
+		
+		    
+		
+        
+		
+		    
+		
+		    
+		
+		    
+		
+		    
+		        <li><a href="/oss.html">Open Source Software</a></li>
+		    
+		
+		    
+		        <li><a href="/about.html">About me</a></li>
+		    
+		
+	</ul>
+</nav>
+
+
+
+<!-- Main -->
+<div id="main" class="alt">
+
+<!-- One -->
+<section id="one">
+	<div class="inner">
+		<header class="major">
+			<h1>LOO-CV on transformed data</h1>
+		</header>
+        
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script
+  type="text/javascript"
+  charset="utf-8"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+>
+</script>
+<script
+  type="text/javascript"
+  charset="utf-8"
+  src="https://vincenttam.github.io/javascripts/MathJaxLocal.js"
+>
+</script>
+
+
+		<p>
+<p>Blog post exploring whether or not LOO-CV can be used to compare models that try to explain some data $y$ with models trying to explain the same data after a transformation $z=f(y)$. Inspired by <a href="https://discourse.mc-stan.org/t/very-simple-loo-question/9258">@tiagocc question</a> on Stan Forums. This post has two sections, the first one is the mathematical derivation of the equations used and their application on a validation example, and the second section is a real example. In addition to the LOO-CV usage examples and explanations, another goal of this notebook is to show and highlight the capabilities of <a href="https://arviz-devs.github.io/arviz/">ArviZ</a>.</p>
+
+<p>This post has been automatically generated from a Jupyter notebook that can be downloaded <a href="/notebooks/loo/LOO-CV_transformed_data.ipynb">here</a></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pystan</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="n">az</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s">'../forty_blog.mplstyle'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="mathematical-derivation-and-validation-example">Mathematical derivation and validation example</h2>
+<p>In the first example, we will compare two equivalent models:</p>
+
+<ol>
+  <li>$y \sim \text{LogNormal}(\mu, \sigma)$</li>
+  <li>$\log y \sim \text{Normal}(\mu, \sigma)$</li>
+</ol>
+
+<h3 id="model-definition-and-execution">Model definition and execution</h3>
+<p>Define the data and execute the two models</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mu</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">logy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logy</span><span class="p">)</span> <span class="c1"># y will then be distributed as lognormal
+</span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'N'</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span>
+    <span class="s">'y'</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span>
+    <span class="s">'logy'</span><span class="p">:</span> <span class="n">logy</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"lognormal.stan"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">lognormal_code</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</code></pre></div></div>
+
+<details>
+  <summary>Stan code for LogNormal model
+</summary>
+
+  <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">lognormal_code</span><span class="p">)</span>
+</code></pre></div>  </div>
+
+  <pre><code>data {
+  int&lt;lower=0&gt; N;
+  vector[N] y;
+}
+
+parameters {
+  real mu;
+  real&lt;lower=0&gt; sigma;
+}
+
+model {
+    y ~ lognormal(mu, sigma);
+}
+
+generated quantities {
+    vector[N] log_lik;
+    vector[N] y_hat;
+
+    for (i in 1:N) {
+        log_lik[i] = lognormal_lpdf(y[i] | mu, sigma);
+        y_hat[i] = lognormal_rng(mu, sigma);
+    }
+}
+</code></pre>
+
+</details>
+<p><br /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sm_lognormal</span> <span class="o">=</span> <span class="n">pystan</span><span class="o">.</span><span class="n">StanModel</span><span class="p">(</span><span class="n">model_code</span><span class="o">=</span><span class="n">lognormal_code</span><span class="p">)</span>
+<span class="n">fit_lognormal</span> <span class="o">=</span> <span class="n">sm_lognormal</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</code></pre></div></div>
+
+<pre><code>INFO:pystan:COMPILING THE C++ CODE FOR MODEL anon_model_fa0385baccb7b330f85e0cacaa99fa9d NOW.
+</code></pre>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">idata_lognormal</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pystan</span><span class="p">(</span>
+    <span class="n">posterior</span><span class="o">=</span><span class="n">fit_lognormal</span><span class="p">,</span>
+    <span class="n">posterior_predictive</span><span class="o">=</span><span class="s">'y_hat'</span><span class="p">,</span>
+    <span class="n">observed_data</span><span class="o">=</span><span class="p">[</span><span class="s">'y'</span><span class="p">],</span>
+    <span class="n">log_likelihood</span><span class="o">=</span><span class="s">'log_lik'</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"normal_on_log.stan"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">normal_on_log_code</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</code></pre></div></div>
+
+<details>
+  <summary>Stan code for Normal on Log data model
+</summary>
+
+  <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">normal_on_log_code</span><span class="p">)</span>
+</code></pre></div>  </div>
+
+  <pre><code>data {
+  int&lt;lower=0&gt; N;
+  vector[N] logy;
+}
+
+parameters {
+  real mu;
+  real&lt;lower=0&gt; sigma;
+}
+
+model {
+    logy ~ normal(mu, sigma);
+}
+
+generated quantities {
+    vector[N] log_lik;
+    vector[N] logy_hat;
+
+    for (i in 1:N) {
+        log_lik[i] = normal_lpdf(logy[i] | mu, sigma);
+        logy_hat[i] = normal_rng(mu, sigma);
+    }
+}
+</code></pre>
+
+</details>
+<p><br /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sm_normal</span> <span class="o">=</span> <span class="n">pystan</span><span class="o">.</span><span class="n">StanModel</span><span class="p">(</span><span class="n">model_code</span><span class="o">=</span><span class="n">normal_on_log_code</span><span class="p">)</span>
+<span class="n">fit_normal</span> <span class="o">=</span> <span class="n">sm_normal</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</code></pre></div></div>
+
+<pre><code>INFO:pystan:COMPILING THE C++ CODE FOR MODEL anon_model_6b25918853568e528afbe629c1103e09 NOW.
+</code></pre>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">idata_normal</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pystan</span><span class="p">(</span>
+    <span class="n">posterior</span><span class="o">=</span><span class="n">fit_normal</span><span class="p">,</span>
+    <span class="n">posterior_predictive</span><span class="o">=</span><span class="s">'logy_hat'</span><span class="p">,</span>
+    <span class="n">observed_data</span><span class="o">=</span><span class="p">[</span><span class="s">'logy'</span><span class="p">],</span>
+    <span class="n">log_likelihood</span><span class="o">=</span><span class="s">'log_lik'</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>Check model convergence. Use <code>az.summary</code> to in one view that the effective sample size (ESS) is large enough and $\hat{R}$ is close to one.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata_lognormal</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div>
+  <style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+  <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>sd</th>
+      <th>hpd_3%</th>
+      <th>hpd_97%</th>
+      <th>mcse_mean</th>
+      <th>mcse_sd</th>
+      <th>ess_mean</th>
+      <th>ess_sd</th>
+      <th>ess_bulk</th>
+      <th>ess_tail</th>
+      <th>r_hat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mu</th>
+      <td>2.151</td>
+      <td>0.218</td>
+      <td>1.753</td>
+      <td>2.549</td>
+      <td>0.006</td>
+      <td>0.004</td>
+      <td>1338.0</td>
+      <td>1285.0</td>
+      <td>1382.0</td>
+      <td>1221.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>sigma</th>
+      <td>1.204</td>
+      <td>0.168</td>
+      <td>0.901</td>
+      <td>1.510</td>
+      <td>0.005</td>
+      <td>0.004</td>
+      <td>1090.0</td>
+      <td>1066.0</td>
+      <td>1126.0</td>
+      <td>1002.0</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata_normal</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div>
+  <style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+  <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>sd</th>
+      <th>hpd_3%</th>
+      <th>hpd_97%</th>
+      <th>mcse_mean</th>
+      <th>mcse_sd</th>
+      <th>ess_mean</th>
+      <th>ess_sd</th>
+      <th>ess_bulk</th>
+      <th>ess_tail</th>
+      <th>r_hat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mu</th>
+      <td>2.154</td>
+      <td>0.222</td>
+      <td>1.731</td>
+      <td>2.568</td>
+      <td>0.006</td>
+      <td>0.004</td>
+      <td>1402.0</td>
+      <td>1386.0</td>
+      <td>1421.0</td>
+      <td>1201.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>sigma</th>
+      <td>1.194</td>
+      <td>0.160</td>
+      <td>0.902</td>
+      <td>1.492</td>
+      <td>0.004</td>
+      <td>0.003</td>
+      <td>1333.0</td>
+      <td>1273.0</td>
+      <td>1428.0</td>
+      <td>1067.0</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>In addition, we can plot the quantile ESS plot for one of them directly with <code>plot_ess</code></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">plot_ess</span><span class="p">(</span><span class="n">idata_normal</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s">"quantile"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"k"</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><img src="/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_22_0.png" alt="png" /></p>
+
+<h3 id="posterior-validation">Posterior validation</h3>
+<p>Check that both models are equivalent and do indeed give the same result for both parameters.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">idata_lognormal</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><img src="/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_24_0.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">idata_normal</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><img src="/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_25_0.png" alt="png" /></p>
+
+<h3 id="calculate-loo-cv">Calculate LOO-CV</h3>
+<p>Now we get to calculate LOO-CV using Pareto Smoothed Importance Sampling as detailed in Vehtari et al., 2017. As we explained above, both models are equivalent, but one is in terms of $y$ and the other in terms of $\log y$. Therefore, their likelihoods will be on different scales, and hence, their expected log predictive density will also be different.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_lognormal</span><span class="p">)</span>
+</code></pre></div></div>
+
+<pre><code>Computed from 2000 by 30 log-likelihood matrix
+
+       Estimate       SE
+IC_loo   226.00    14.38
+p_loo      2.05        -
+</code></pre>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_normal</span><span class="p">)</span>
+</code></pre></div></div>
+
+<pre><code>Computed from 2000 by 30 log-likelihood matrix
+
+       Estimate       SE
+IC_loo    96.66     8.71
+p_loo      2.00        -
+</code></pre>
+
+<p>We have found that as expected, the two models yield different results despite being actually the same model. This is because. LOO is estimated from the log likelihood, $\log p(y_i\mid\theta^s)$, being $i$ the observation id, and $s$ the MCMC sample id. Following Vehtari et al., 2017, this log likelihood is used to calculate the PSIS weights and to estimate the expected log pointwise predictive density in the following way:</p>
+
+<ol>
+  <li>Calculate raw importance weights: $r_i^s = \frac{1}{p(y_i\mid\theta^s)}$</li>
+  <li>Smooth the $r_i^s$ (see original paper for details) to get the PSIS weights $w_i^s$</li>
+  <li>Calculate elpd LOO as:</li>
+</ol>
+
+<script type="math/tex; mode=display">\text{elpd}_{psis-loo} = \sum_{i=1}^n \log \left( \frac{\sum_s w_i^s p(y_i|\theta^s)}{\sum_s w_i^s} \right)</script>
+
+<p>This will estimate the out of sample predictive fit of $y$ (where $y$ is the data of the model. Therefore, for the first model, using a LogNormal distribution, we are indeed calculating the desired quantity:</p>
+
+<script type="math/tex; mode=display">\text{elpd}_{psis-loo}^{(1)} \approx \sum_{i=1}^n \log p(y_i|y_{-i})</script>
+
+<p>Whereas for the second model, we are calculating:</p>
+
+<script type="math/tex; mode=display">\text{elpd}_{psis-loo}^{(2)} \approx \sum_{i=1}^n \log p(z_i|z_{-i})</script>
+
+<p>being $z_i = \log y_i$. We actually have two different probability density functions, one over $y$ which from here on we will note $p_y(y)$, and $p_z(z)$.</p>
+
+<p>In order to estimate the elpd loo for $y$ from the data in the second model, $z$, we have to describe $p_y(y)$ as a function of $z$ and $p_z(z)$. We know that $y$ and $z$ are actually related, and we can use this relation to find how would the random variable $y$ (which is actually a transformation of the random variable $z$) be distributed. This is done with the Jacobian. Therefore:</p>
+
+<script type="math/tex; mode=display">p_y(y|\theta)=p_z(z|\theta)|\frac{dz}{dy}|=\frac{1}{|y|}p_z(z|\theta)=e^{-z}p_z(z|\theta)</script>
+
+<p>In the log scale:</p>
+
+<script type="math/tex; mode=display">\log p_y(y|\theta)=-z + \log p_z(z|\theta)</script>
+
+<p>We apply the results to the log likelihood data of the second model (the normal on the logarithm instead of the lognormal) and check that now the result does coincide with the LOO-CV estimated by the lognormal model.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">old_like</span> <span class="o">=</span> <span class="n">idata_normal</span><span class="o">.</span><span class="n">sample_stats</span><span class="o">.</span><span class="n">log_likelihood</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">logy</span>
+<span class="n">idata_normal</span><span class="o">.</span><span class="n">sample_stats</span><span class="p">[</span><span class="s">"log_likelihood"</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">z</span><span class="o">+</span><span class="n">old_like</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_normal</span><span class="p">)</span>
+</code></pre></div></div>
+
+<pre><code>Computed from 2000 by 30 log-likelihood matrix
+
+       Estimate       SE
+IC_loo   225.84    14.46
+p_loo      2.00        -
+</code></pre>
+
+<h2 id="real-example">Real example</h2>
+
+<p>We will now use as data a subsample of a <a href="https://docs.google.com/spreadsheets/d/1gt1Dvi7AnQJiBb5vKaxanTis_sfd4sC4sVoswM1Fz7s/pub#">real dataset</a>. The subset has been selected using:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s">"indicator breast female incidence.xlsx"</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s">"Breast Female Incidence"</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">thresh</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s">"indicator_breast_female_incidence.csv"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Below, the data is loaded and plotted for inspection.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">"indicator_breast_female_incidence.csv"</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p><img src="/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_37_0.png" alt="png" /></p>
+
+<p>In order to show different examples of LOO on transformed data, we will take into account the following models:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+&y=a_1 x+a_0 \\
+&y=e^{b_0}e^{b_1 x}  &\rightarrow& \quad\log y = z_1 = b_1 x + b_0\\
+&y=c_1^2 x^2 + 2 c_1 c_2 x + c_0^2  &\rightarrow& \quad\sqrt{y} = z_2 = c_1 x + c_0
+\end{align} %]]></script>
+
+<p>This models have been chosen mainly because of their simplicity. In addition, they can all be applied using the same Stan code and the data looks kind of linear. This will put the focus of the example on the loo calculation instead of on the model itself. For the online example, the data from Finland has been chosen, but feel free to download the notebook and experiment with it.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">y_data</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Finland</span>
+<span class="n">z1_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y_data</span><span class="p">)</span>
+<span class="n">z2_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y_data</span><span class="p">)</span>
+<span class="n">x_data</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">/</span><span class="mi">100</span> <span class="c1"># rescale to set both to a similar scale
+</span><span class="n">dict_y</span> <span class="o">=</span> <span class="p">{</span><span class="s">"N"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_data</span><span class="p">),</span> <span class="s">"y"</span><span class="p">:</span> <span class="n">y_data</span><span class="p">,</span> <span class="s">"x"</span><span class="p">:</span> <span class="n">x_data</span><span class="p">}</span>
+<span class="n">dict_z1</span> <span class="o">=</span> <span class="p">{</span><span class="s">"N"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_data</span><span class="p">),</span> <span class="s">"y"</span><span class="p">:</span> <span class="n">z1_data</span><span class="p">,</span> <span class="s">"x"</span><span class="p">:</span> <span class="n">x_data</span><span class="p">}</span>
+<span class="n">dict_z2</span> <span class="o">=</span> <span class="p">{</span><span class="s">"N"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_data</span><span class="p">),</span> <span class="s">"y"</span><span class="p">:</span> <span class="n">z2_data</span><span class="p">,</span> <span class="s">"x"</span><span class="p">:</span> <span class="n">x_data</span><span class="p">}</span>
+<span class="n">coords</span> <span class="o">=</span> <span class="p">{</span><span class="s">"year"</span><span class="p">:</span> <span class="n">x_data</span><span class="p">}</span>
+<span class="n">dims</span> <span class="o">=</span> <span class="p">{</span><span class="s">"y"</span><span class="p">:</span> <span class="p">[</span><span class="s">"year"</span><span class="p">],</span> <span class="s">"log_likelihood"</span><span class="p">:</span> <span class="p">[</span><span class="s">"year"</span><span class="p">]}</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"linear_regression.stan"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">lr_code</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</code></pre></div></div>
+
+<details>
+  <summary>Stan code for Linear Regression
+</summary>
+
+  <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">lr_code</span><span class="p">)</span>
+</code></pre></div>  </div>
+
+  <pre><code>data {
+  int&lt;lower=0&gt; N;
+  vector[N] x;
+  vector[N] y;
+}
+
+parameters {
+  real b0;
+  real b1;
+  real&lt;lower=0&gt; sigma_e;
+}
+
+model {
+  b0 ~ normal(0, 20);
+  b1 ~ normal(0, 20);
+  for (i in 1:N) {
+    y[i] ~ normal(b0 + b1 * x[i], sigma_e);
+  }
+
+}
+
+generated quantities {
+    vector[N] log_lik;
+    vector[N] y_hat;
+    for (i in 1:N) {
+        log_lik[i] = normal_lpdf(y[i] | b0 + b1 * x[i], sigma_e);
+        y_hat[i] = normal_rng(b0 + b1 * x[i], sigma_e);
+    }
+}
+</code></pre>
+
+</details>
+<p><br /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sm_lr</span> <span class="o">=</span> <span class="n">pystan</span><span class="o">.</span><span class="n">StanModel</span><span class="p">(</span><span class="n">model_code</span><span class="o">=</span><span class="n">lr_code</span><span class="p">)</span>
+<span class="n">control</span> <span class="o">=</span> <span class="p">{</span><span class="s">"max_treedepth"</span><span class="p">:</span> <span class="mi">15</span><span class="p">}</span>
+</code></pre></div></div>
+
+<pre><code>INFO:pystan:COMPILING THE C++ CODE FOR MODEL anon_model_48dbd7ee0ddc95eb18559d7bcb63f497 NOW.
+</code></pre>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fit_y</span> <span class="o">=</span> <span class="n">sm_lr</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dict_y</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">control</span><span class="o">=</span><span class="n">control</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fit_z1</span> <span class="o">=</span> <span class="n">sm_lr</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dict_z1</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">control</span><span class="o">=</span><span class="n">control</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fit_z2</span> <span class="o">=</span> <span class="n">sm_lr</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dict_z2</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">control</span><span class="o">=</span><span class="n">control</span><span class="p">)</span>
+</code></pre></div></div>
+
+<details>
+  <summary>Convertion to InferenceData and posterior exploration
+</summary>
+
+  <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">idata_y</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pystan</span><span class="p">(</span>
+    <span class="n">posterior</span><span class="o">=</span><span class="n">fit_y</span><span class="p">,</span>
+    <span class="n">posterior_predictive</span><span class="o">=</span><span class="s">'y_hat'</span><span class="p">,</span>
+    <span class="n">observed_data</span><span class="o">=</span><span class="p">[</span><span class="s">'y'</span><span class="p">],</span>
+    <span class="n">log_likelihood</span><span class="o">=</span><span class="s">'log_lik'</span><span class="p">,</span>
+    <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span>
+    <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">idata_y</span><span class="o">.</span><span class="n">posterior</span> <span class="o">=</span> <span class="n">idata_y</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s">"b0"</span><span class="p">:</span> <span class="s">"a0"</span><span class="p">,</span> <span class="s">"b1"</span><span class="p">:</span> <span class="s">"a1"</span><span class="p">})</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">idata_y</span><span class="p">);</span>
+</code></pre></div>  </div>
+
+  <p><img src="/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_49_0.png" alt="png" /></p>
+
+  <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">idata_z1</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pystan</span><span class="p">(</span>
+    <span class="n">posterior</span><span class="o">=</span><span class="n">fit_z1</span><span class="p">,</span>
+    <span class="n">posterior_predictive</span><span class="o">=</span><span class="s">'y_hat'</span><span class="p">,</span>
+    <span class="n">observed_data</span><span class="o">=</span><span class="p">[</span><span class="s">'y'</span><span class="p">],</span>
+    <span class="n">log_likelihood</span><span class="o">=</span><span class="s">'log_lik'</span><span class="p">,</span>
+    <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span>
+    <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">idata_z1</span><span class="p">);</span>
+</code></pre></div>  </div>
+
+  <p><img src="/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_50_0.png" alt="png" /></p>
+
+  <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">idata_z2</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pystan</span><span class="p">(</span>
+    <span class="n">posterior</span><span class="o">=</span><span class="n">fit_z2</span><span class="p">,</span>
+    <span class="n">posterior_predictive</span><span class="o">=</span><span class="s">'y_hat'</span><span class="p">,</span>
+    <span class="n">observed_data</span><span class="o">=</span><span class="p">[</span><span class="s">'y'</span><span class="p">],</span>
+    <span class="n">log_likelihood</span><span class="o">=</span><span class="s">'log_lik'</span><span class="p">,</span>
+    <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span>
+    <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">idata_z2</span><span class="o">.</span><span class="n">posterior</span> <span class="o">=</span> <span class="n">idata_z2</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s">"b0"</span><span class="p">:</span> <span class="s">"c0"</span><span class="p">,</span> <span class="s">"b1"</span><span class="p">:</span> <span class="s">"c1"</span><span class="p">})</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">idata_z2</span><span class="p">);</span>
+</code></pre></div>  </div>
+
+  <p><img src="/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_51_0.png" alt="png" /></p>
+
+</details>
+<p><br /></p>
+
+<p>In order to compare the out of sample predictive accuracy, we have to apply the Jacobian transformation to the 2 latter models, so that all of them are in terms of $y$.</p>
+
+<p>Note: we will use LOO instead of Leave Future Out algorithm even though it may be more appropriate because the Jacobian transformation to be applied is the same in both cases. Moreover, PSIS-LOO does not require refitting, and it is already implemented in ArviZ.</p>
+
+<p>The transformation to apply to the second model $z_1 = \log y$ is the same as the previous example:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">old_loo_z1</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_z1</span><span class="p">)</span><span class="o">.</span><span class="n">loo</span>
+<span class="n">old_like</span> <span class="o">=</span> <span class="n">idata_z1</span><span class="o">.</span><span class="n">sample_stats</span><span class="o">.</span><span class="n">log_likelihood</span>
+<span class="n">idata_z1</span><span class="o">.</span><span class="n">sample_stats</span><span class="p">[</span><span class="s">"log_likelihood"</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">z1_data</span><span class="o">.</span><span class="n">values</span><span class="o">+</span><span class="n">old_like</span>
+</code></pre></div></div>
+
+<p>In the case of the third model, $z_2 = \sqrt{y}$:</p>
+
+<script type="math/tex; mode=display">|\frac{dz}{dy}| = |\frac{1}{2\sqrt{y}}| = \frac{1}{2 z_2} \quad \rightarrow \quad \log |\frac{dz}{dy}| = -\log (2 z_2)</script>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">old_loo_z2</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_z2</span><span class="p">)</span><span class="o">.</span><span class="n">loo</span>
+<span class="n">old_like</span> <span class="o">=</span> <span class="n">idata_z2</span><span class="o">.</span><span class="n">sample_stats</span><span class="o">.</span><span class="n">log_likelihood</span>
+<span class="n">idata_z2</span><span class="o">.</span><span class="n">sample_stats</span><span class="p">[</span><span class="s">"log_likelihood"</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">z2_data</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">+</span><span class="n">old_like</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_y</span><span class="p">)</span>
+</code></pre></div></div>
+
+<pre><code>Computed from 4500 by 46 log-likelihood matrix
+
+       Estimate       SE
+IC_loo   388.43     7.72
+p_loo      1.56        -
+</code></pre>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"LOO before Jacobian transformation: {:.2f}"</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">old_loo_z1</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_z1</span><span class="p">))</span>
+</code></pre></div></div>
+
+<pre><code>LOO before Jacobian transformation: -141.43
+Computed from 4500 by 46 log-likelihood matrix
+
+       Estimate       SE
+IC_loo   200.56     8.95
+p_loo      3.03        -
+</code></pre>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"LOO before Jacobian transformation: {:.2f}"</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">old_loo_z2</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_z2</span><span class="p">))</span>
+</code></pre></div></div>
+
+<pre><code>LOO before Jacobian transformation: -4.93
+Computed from 4500 by 46 log-likelihood matrix
+
+       Estimate       SE
+IC_loo   229.84     7.56
+p_loo      2.83        -
+</code></pre>
+
+<h2 id="references">References</h2>
+<p>Vehtari, A., Gelman, A., and Gabry, J. (2017):  Practical Bayesian Model Evaluation Using Leave-One-OutCross-Validation and WAIC, <em>Statistics and Computing</em>, vol. 27(5), pp. 1413–1432.</p>
+
+</p>
+	</div>
+</section>
+
+</div>
+
+    <!-- Footer -->
+	<footer id="footer">
+		<div class="inner">
+			<ul class="copyright">
+				
+				
+				
+				
+				
+				
+				
+				
+				<li><a href="https://github.com/OriolAbril" class="icon fa-github" target="_blank"><span class="label">GitHub</span></a></li>
+				
+				
+				
+				<li>&copy; GSoC blog Oriol Abril</li>
+				<li>Design: <a href="https://html5up.net" target="_blank">HTML5 UP</a></li>
+				<li>Jekyll integration: <a href="https://gitlab.com/andrewbanchich" target="_blank">Andrew Banchich</a></li>
+			</ul>
+		</div>
+	</footer>
+
+</div>
+
+<!-- Scripts -->
+	<script src="/assets/js/jquery.min.js"></script>
+	<script src="/assets/js/jquery.scrolly.min.js"></script>
+	<script src="/assets/js/jquery.scrollex.min.js"></script>
+	<script src="/assets/js/skel.min.js"></script>
+	<script src="/assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="/assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="/assets/js/main.js"></script>
+
+
+</body>
+
+</html>
