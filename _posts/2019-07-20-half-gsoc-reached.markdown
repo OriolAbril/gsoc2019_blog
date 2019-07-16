@@ -3,22 +3,26 @@ layout: post
 title:  "Half GSoC reached"
 description: "I have already reached the middle of the GSoC coding period"
 date:   2019-07-15 15:10:21 +0200
+mathjax: true
 image: assets/images/plot_khat.gif
 
 ---
 
 Even though it feels like yesterday, the coding period started nearly a month
 and a half ago. We have already been coding for more than half of the GSoC coding
-period time. I have already passed the first evaluation, received the first
-payment and implemented or modified many functions in ArviZ (created some bugs
-too even...). Therefore, it feels like a good time to review a little in depth
+period time. I have passed the first evaluation, received the first
+payment and implemented or modified many functions in ArviZ (even created some bugs
+too...). Therefore, it feels like a good time to review in a little depth
 my work up to this point, and compare with the [timeline proposed]({{ site.url
 }}/2019/04/08/write-the-proposal.html).
 
 ### Finished tasks
 According to the proposed timeline, I should have finished up to task T7, and
-be starting T9. Task T8 is correcting bugs, which I have already started and
-has no finish date.
+be starting T9. I do not count T8 here because it is basically correcting bugs,
+which I have already started doing and
+has no finish date. In general lines, I have followed and fulfilled my initial
+timeline up until here, but from here on, it will start to diverge as we have
+considered more interesting to pursue some new goals.
 
 #### T1-T3: Information Criteria
 Hence, I should have finished my work on information
@@ -56,15 +60,15 @@ interactive one.
 The other block of my proposal were convergence analysis tools. A great deal
 of tools was published while I was writing the proposal, and they were added
 to the stats module in ArviZ right before the start of my coding period. I
-reviewed extensively the pull request that added all these tools as well as
-read the papers to get the most familiar possible with how they worked and how
+reviewed extensively the pull request that added all these tools and
+read the papers to get familiar with how they worked and how
 they were implemented.
 
 In this block, my work consisted in creating plotting functions to allow
 graphical exploration of all the new convergence analysis tools. These include
 local, quantile and evolution effective sample size plots and local and
-quantile Monte-Carlo standard error. Both plots leave room for great
-customization: some examples can be seen below:
+quantile Monte-Carlo standard error plots. Both plots leave room for great
+customization, some examples can be seen below:
 
 ![plot_ess]({{ site.url }}/assets/images/plot_ess_evolution.png)
 
@@ -73,13 +77,20 @@ customization: some examples can be seen below:
 #### T#: Model checking
 Moreover, I also implemented Leave One Out (LOO) Probability Integral
 Transform (PIT) checks, to see if the observed data could have been generated
-from the model. It combines the idea of the PIT algorithm, which is that if a
-sample $x_i$ generated from a probability density function $f(x)$, then $F(x)
-= P(x < x_i)$ is distributed as a uniform random variable with the LOO
+from the model.
+
+LOO-PIT combines the idea of the PIT algorithm, which is that if an
+observation $x_i$ is generated from a probability density function $f(x)$, then $F(x)
+= P(x < x_i)$ is distributed as a uniform random variable; with the LOO
 algorithm idea which is to perform the calculations on $x_i$ with the
 inference results of fitting all data but $x_i$. Thus, for every $x_i$ in the
 observed data, $f(x)$ is estimated
 fitting all data but $x_i$ and then $x_i$ is used to check the PIT uniformity.
+
+This kind of check requires models with a high number of observations, but can
+detect problems with the model. If the LOO-PIT samples are far from
+uniformity, it probably means that the observed data could never be generated
+from the current model.
 
 It also implements the comparison of the empirical cumulative density function
 (ECDF)
@@ -94,9 +105,10 @@ to generate and store a wide range of Bayesian inference examples, and in
 addition to the models in ArviZ, I also tested the functions manually on these
 examples. I do not plan on stopping here however. I will check repos and
 packages that use ArviZ, PyMC3 or PyStan and analyze the robustness of their
-workflow and try to apply all the functions implemented there and extend the
-model and MCMC checking performed. This could achieve two goals,
-it could make these algorithms more known, and it will most probably help in
+workflow. Then, I will try to apply all the functions implemented in these repos and
+extend the checks performed on the model and the MCMC samples.
+This could achieve two goals,
+it could make these algorithms more known and it will most probably help in
 finding bugs and improving the documentation.
 
 ### Future work
@@ -105,7 +117,7 @@ plans for the other two blocks, implementing the Leave Future Out cross
 validation in the information criteria block and implementing Simulation
 Based Calibration in the model checking block. Both algorithms require
 refitting, which poses a huge challenge for a backend agnostic package like
-ArviZ who has no sampling capabilities itself. I have already started working
+ArviZ without sampling capabilities of its own. I have already started working
 on some wrappers in order to allow refitting using any user defined backend
 such as PyStan, PyMC3 of emcee.
 
@@ -114,7 +126,7 @@ following matplotlib's implementation, in order to allow easier and better
 configuration of ArviZ defaults.
 
 Finally, of the planned tasks that lie ahead, I will not spend much time on
-benchmarking, because that would collide with the other ongoing GSoC project
+benchmarking (T9), because that would collide with the other ongoing GSoC project
 to apply Numba to ArviZ algorithms, nor I will write a section in ArviZ
 resources repo, I will probably post tutorials on how to use ArviZ's new
 functions in this blog, following the example of the LOO on transformed data
