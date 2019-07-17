@@ -220,6 +220,7 @@ axes.grid           : True   ## display grid or not
 #axes.grid.axis      : both    ## which axis the grid should apply to
 #axes.grid.which     : major   ## gridlines at major, minor or both ticks
 axes.titlesize      : 16   ## fontsize of the axes title
+axes.titlecolor     : white
 #axes.titleweight    : normal  ## font weight of title
 #axes.titlepad       : 6.0     ## pad between axes and title in points
 axes.labelsize      : 15  ## fontsize of the x any y labels
@@ -465,7 +466,7 @@ savefig.facecolor   : 242943     ## figure facecolor when saving
 #savefig.jpeg_quality: 95       ## when a jpeg is saved, the default quality parameter.
 #savefig.directory   : ~        ## default directory in savefig dialog box,
                                 ## leave empty to always use current working directory
-savefig.transparent : True    ## setting that controls whether figures are saved with a */
+savefig.transparent : False    ## setting that controls whether figures are saved with a */
                                 ## transparent background by default
 #savefig.orientation : portrait	## Orientation of saved figure
 
