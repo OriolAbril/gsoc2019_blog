@@ -4,7 +4,7 @@ title:  "Half GSoC reached"
 description: "I have already reached the middle of the GSoC coding period"
 date:   2019-07-15 15:10:21 +0200
 mathjax: true
-image: assets/images/plot_khat.gif
+image: assets/images/plot_loo_pit_ecdf.png
 
 ---
 
