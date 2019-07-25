@@ -1,6 +1,5 @@
 
-# Port of emcee's autocorrelation time tutorial to arviz
-The original post by Dan Foreman-Mackey can be found at https://emcee.readthedocs.io/en/latest/tutorials/autocorr/#autocorr. I recommend to at least skim Dan's post before reading this one.
+This post extends one tutorial in the emcee docs. The original post by Dan Foreman-Mackey can be found in [emcee docs](https://emcee.readthedocs.io/en/latest/tutorials/autocorr/#autocorr). I recommend to at least skim Dan's post before reading this one.
 
 This notebook adds to emcee's autocorrelation tutorial an extra way to perform the calculations. emcee implements the calcualtion of the autocorrelation time using [Alan Sokal's notes](https://pdfs.semanticscholar.org/0bfe/9e3db30605fe2d4d26e1a288a5e2997e7225.pdf). [ArviZ](https://arviz-devs.github.io/arviz/) implements Gelman-Rubin $\hat{R}$ and effective sample size as described in:
 
@@ -8,9 +7,9 @@ This notebook adds to emcee's autocorrelation tutorial an extra way to perform t
 
 Both approaches to estimate the autocorrelation time are compared to see whether or not they both yield the proper result for emcee, whose chains/walkers are not independent like in HMC.
 
-The original post starts with a toy problem to validate the algorithm. This toy problem consists in generating some data whose autocorrelation time is already known to compare the autocorrelation value returned by emcee and ArviZ with the true autocorrelation time.
-
 ## Toy problem
+
+The original post starts with a toy problem to validate the algorithm. This toy problem consists in generating some data whose autocorrelation time is already known to compare the autocorrelation value returned by emcee and ArviZ with the true autocorrelation time.
 
 
 ```python
@@ -171,12 +170,12 @@ for i, n in enumerate(N):
     az_tau[i] = 1/az.ess(y[:, :n], relative=True, method="mean")
 
 # Plot the comparisons
+plt.axhline(true_tau, color="k", label="truth")
 plt.loglog(N, new, "o-", label="emcee3")
 plt.loglog(N, az_tau, "o-", label="arviz")
 plt.loglog(N, gw2010, "o-", label="G\&W 2010")
 ylim = plt.gca().get_ylim()
 plt.plot(N, N / 50.0, "--k", label=r"$\tau = N/50$")
-plt.axhline(true_tau, color="k", label="truth", zorder=-100)
 plt.ylim(ylim)
 plt.xlabel("number of samples, $N$")
 plt.ylabel(r"$\tau$ estimates")
@@ -194,7 +193,7 @@ This figure add ArviZ to the comparison between emcee3 autocorrelation time calc
 to estimate the autocorrelation time of Affine Invariant MCMC Ensemble Samplers.
 
 ## A more realistic example
-A second example is also tested to show that the autocorrelation time converges to a given value as the number of samples grow independently of the method used.
+A second example using real emcee samples is also tested to show that the autocorrelation time converges to a given value as the number of samples grow. In our case, we also want to show that the autocorrelation time converges to the same value independently of the method used.
 
 
 ```python
@@ -209,7 +208,7 @@ sampler.run_mcmc(
 );
 ```
 
-    100%|██████████| 500000/500000 [07:15<00:00, 1149.41it/s]
+    100%|██████████| 500000/500000 [07:23<00:00, 1128.42it/s]
 
 
 
@@ -259,6 +258,9 @@ This figure shows the comparison between the 3 autocorrelation time computation 
 Note: I am using `method="mean"` in ArviZ effective sample size because our goal is to estimate the effective sample size (and then from it the autocorrelation time), however, to assess MCMC convergence, methods `"bulk"` (default method for `az.ess`) and `"tail"` are recommended.
 
 ## What about shorter chains?
+In addition, there is also a section to test if it is possible to estimate the autocorrelation time modelling it as a parameter in a model. This models could be used in cases where it is not possible to run long simulations, so their autocorrelation time estimate cannot be trusted.
+
+Here too, the parametric models for autocorrelation are computed on emcee and ArviZ autocorrelation time estimates.
 
 
 ```python
@@ -340,6 +342,7 @@ plt.legend(fontsize=14);
 
 
 ## Back to toy model
+Starting from now, this post diverges from the tutorial on the emcee docs, to check the behaviour of ArviZ implementation in a broader range of cases. Here, the parametric models for autocorrelation are also tested for validation on the toy model, where we know the autocorrelation time.
 
 
 ```python
@@ -368,6 +371,7 @@ for j, n in enumerate(N[1:8]):
 
 ```python
 # Plot the comparisons
+plt.axhline(true_tau, color="k", label="truth")
 plt.loglog(N, new, "o-", label="emcee3")
 plt.loglog(N, az_tau, "o-", label="arviz")
 plt.loglog(N, gw2010, "o-", label="G\&W 2010")
@@ -375,7 +379,6 @@ plt.loglog(N, ml, "o-", label="ML")
 plt.loglog(N, ml_az, "o-", label="ML arviz")
 ylim = plt.gca().get_ylim()
 plt.plot(N, N / 50.0, "--k", label=r"$\tau = N/50$")
-plt.axhline(true_tau, color="k", label="truth", zorder=-100)
 plt.ylim(ylim)
 plt.xlabel("number of samples, $N$")
 plt.ylabel(r"$\tau$ estimates")
@@ -387,6 +390,7 @@ plt.legend(fontsize=14);
 
 
 ## A 2nd realistic example
+Finally, the different autocorrelation time estimates are compared on the well known 8 schools model to see if the estimates agree for all 10 variables.
 
 
 ```python
@@ -428,7 +432,7 @@ sampler = emcee.EnsembleSampler(
 sampler.run_mcmc(pos, draws, progress=True);
 ```
 
-    100%|██████████| 60000/60000 [01:51<00:00, 538.44it/s]
+    100%|██████████| 60000/60000 [01:48<00:00, 552.56it/s]
 
 
 
@@ -457,6 +461,7 @@ for d in range(ndim):
 
 
 ```python
+var_names = ["mu", "tau"] + ["eta\n{}".format(i) for i in range(8)]
 fig, axes = plt.subplots(5,2,figsize=(12,15))
 axes = axes.flatten()
 for d in range(ndim):
@@ -477,5 +482,4 @@ axes[4].legend(fontsize=12);
 ![png]({{ site.url }}/notebooks/emcee_autocorrelation/emcee_autocorrelation_time_files/emcee_autocorrelation_time_25_0.png)
 
 
-To sum up, ArviZ results converge to the same value as emcee estimates, and when they don't, it is always for $\tau > N/50$. Moreover, for $\tau > N/50$, ArviZ result tends to be more restrictive, thus, it enforces convergence criterion $\tau < N/50$ in a little more strict manner than emcee.
-```
+To sum up, ArviZ results converge to the same value as emcee estimates, and when they don't, it is always for $\tau > N/50$. Moreover, for $\tau > N/50$, ArviZ result tends to be more restrictive, enforcing the convergence criterion $\tau < N/50$ in a little more strict manner than emcee.
