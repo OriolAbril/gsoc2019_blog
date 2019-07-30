@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<!--
+	Forty by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+
+<head>
+	<title>GSoC blog</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<!--[if lte IE 8]><script src="/assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="/assets/css/main.css" />
+	<!--[if lte IE 9]><link rel="stylesheet" href="/assets/css/ie9.css" /><![endif]-->
+	<!--[if lte IE 8]><link rel="stylesheet" href="/assets/css/ie8.css" /><![endif]-->
+
+    <!-- Favicon head tag -->
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+</head>
+
+
+<body>
+
+    <!-- Wrapper -->
+<div id="wrapper">
+
+<!-- Header -->
+<header id="header">
+	<a href="/" class="logo"><strong>GSoC blog</strong> <span></span></a>
+	<nav>
+		<a href="#menu">Menu</a>
+	</nav>
+</header>
+
+<!-- Menu -->
+<nav id="menu">
+	<ul class="links">
+        
+		    
+		
+		    
+		
+		    
+		        <li><a href="/">Home</a></li>
+	    	
+		
+		    
+		
+		    
+		
+        
+		
+		    
+		
+		    
+		
+		    
+		
+		    
+		        <li><a href="/oss.html">Open Source Software</a></li>
+		    
+		
+		    
+		        <li><a href="/about.html">About me</a></li>
+		    
+		
+	</ul>
+</nav>
+
+
+
+<!-- Main -->
+<div id="main" class="alt">
+
+<!-- One -->
+<section id="one">
+	<div class="inner">
+		<header class="major">
+			<h1>Autocorrelation time in emcee</h1>
+		</header>
+        
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script
+  type="text/javascript"
+  charset="utf-8"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+>
+</script>
+<script
+  type="text/javascript"
+  charset="utf-8"
+  src="https://vincenttam.github.io/javascripts/MathJaxLocal.js"
+>
+</script>
+
+
+		<p>
+<p>This post extends one tutorial in the emcee docs. The original post by Dan Foreman-Mackey can be found in <a href="https://emcee.readthedocs.io/en/latest/tutorials/autocorr/#autocorr">emcee docs</a>. I recommend to at least skim Dan’s post before reading this one.</p>
+
+<p>This notebook adds to emcee’s autocorrelation tutorial an extra way to perform the calculations. emcee implements the calcualtion of the autocorrelation time using <a href="https://pdfs.semanticscholar.org/0bfe/9e3db30605fe2d4d26e1a288a5e2997e7225.pdf">Alan Sokal’s notes</a>. <a href="https://arviz-devs.github.io/arviz/">ArviZ</a> implements Gelman-Rubin $\hat{R}$ and effective sample size as described in:</p>
+
+<ul>
+  <li>Aki Vehtari, Andrew Gelman, Daniel Simpson, Bob Carpenter, Paul-Christian Bürkner (2019): Rank-normalization, folding, and localization: An improved R-hat for assessing convergence of MCMC. <a href="https://arxiv.org/abs/1903.08008">arXiv preprint arXiv:1903.08008</a>.</li>
+</ul>
+
+<p>Both approaches to estimate the autocorrelation time are compared to see whether or not they both yield the proper result for emcee, whose chains/walkers are not independent like in HMC.</p>
+
+<h2 id="toy-problem">Toy problem</h2>
+
+<p>The original post starts with a toy problem to validate the algorithm. This toy problem consists in generating some data whose autocorrelation time is already known to compare the autocorrelation value returned by emcee and ArviZ with the true autocorrelation time.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="n">az</span>
+<span class="kn">import</span> <span class="nn">emcee</span>
+<span class="kn">import</span> <span class="nn">celerite</span>
+<span class="kn">from</span> <span class="nn">celerite</span> <span class="kn">import</span> <span class="n">terms</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s">'../forty_blog.mplstyle'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Build the celerite model:
+</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">terms</span><span class="o">.</span><span class="n">RealTerm</span><span class="p">(</span><span class="n">log_a</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">log_c</span><span class="o">=-</span><span class="mf">6.0</span><span class="p">)</span>
+<span class="n">kernel</span> <span class="o">+=</span> <span class="n">terms</span><span class="o">.</span><span class="n">RealTerm</span><span class="p">(</span><span class="n">log_a</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">log_c</span><span class="o">=-</span><span class="mf">2.0</span><span class="p">)</span>
+
+<span class="c1"># The true autocorrelation time can be calculated analytically:
+</span><span class="n">true_tau</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">log_a</span><span class="o">-</span><span class="n">t</span><span class="o">.</span><span class="n">log_c</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">kernel</span><span class="o">.</span><span class="n">terms</span><span class="p">)</span>
+<span class="n">true_tau</span> <span class="o">/=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">log_a</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">kernel</span><span class="o">.</span><span class="n">terms</span><span class="p">)</span>
+<span class="n">true_tau</span>
+
+<span class="c1"># Simulate a set of chains:
+</span><span class="n">gp</span> <span class="o">=</span> <span class="n">celerite</span><span class="o">.</span><span class="n">GP</span><span class="p">(</span><span class="n">kernel</span><span class="p">)</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2000000</span><span class="p">)</span>
+<span class="n">gp</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+
+<span class="c1"># Let's plot a little segment with a few samples:
+</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">300</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"step number"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"$f$"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">"$</span><span class="se">\\</span><span class="s">tau_</span><span class="err">\</span><span class="s">mathrmtrue = {0:.0f}$"</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">true_tau</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><img src="/notebooks/emcee_autocorrelation/emcee_autocorrelation_time_files/emcee_autocorrelation_time_5_0.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">next_pow_two</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">:</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">i</span>
+
+<span class="k">def</span> <span class="nf">autocorr_func_1d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="s">"invalid dimensions for 1D autocorrelation function"</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">next_pow_two</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+    <span class="c1"># Compute the FFT and then (from that) the auto-correlation function
+</span>    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">acf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">f</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">f</span><span class="p">))[:</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span><span class="o">.</span><span class="n">real</span>
+    <span class="n">acf</span> <span class="o">/=</span> <span class="mi">4</span><span class="o">*</span><span class="n">n</span>
+
+    <span class="c1"># Optionally normalize
+</span>    <span class="k">if</span> <span class="n">norm</span><span class="p">:</span>
+        <span class="n">acf</span> <span class="o">/=</span> <span class="n">acf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">acf</span>
+
+<span class="c1"># Make plots of ACF estimate for a few different chain lengths
+</span><span class="n">window</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">true_tau</span><span class="p">)</span>
+<span class="n">tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">window</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">f0</span> <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">tau</span><span class="p">)</span> <span class="o">/</span> <span class="n">kernel</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+
+<span class="c1"># Loop over chain lengths:
+</span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">],</span> <span class="n">axes</span><span class="p">):</span>
+    <span class="n">nn</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">true_tau</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tau</span> <span class="o">/</span> <span class="n">true_tau</span><span class="p">,</span> <span class="n">f0</span><span class="p">,</span> <span class="s">"k"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"true"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tau</span> <span class="o">/</span> <span class="n">true_tau</span><span class="p">,</span> <span class="n">autocorr_func_1d</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:</span><span class="n">nn</span><span class="p">])[:</span><span class="n">window</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">"emcee3 estimate"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tau</span> <span class="o">/</span> <span class="n">true_tau</span><span class="p">,</span> <span class="n">az</span><span class="o">.</span><span class="n">autocorr</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">,:</span><span class="n">nn</span><span class="p">])[:</span><span class="n">window</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">"arviz estimate"</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s">'--'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">r"$N = {0}\,\tau_\mathrmtrue$"</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">r"$\tau / \tau_\mathrm{true}$"</span><span class="p">)</span>
+
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">r"$\rho_f(\tau)$"</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">window</span> <span class="o">/</span> <span class="n">true_tau</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><img src="/notebooks/emcee_autocorrelation/emcee_autocorrelation_time_files/emcee_autocorrelation_time_6_0.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">],</span> <span class="n">axes</span><span class="p">):</span>
+    <span class="n">nn</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">true_tau</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tau</span> <span class="o">/</span> <span class="n">true_tau</span><span class="p">,</span> <span class="n">f0</span><span class="p">,</span> <span class="s">"k"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"true"</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">autocorr_func_1d</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:</span><span class="n">nn</span><span class="p">],</span> <span class="n">norm</span><span class="o">=</span><span class="bp">False</span><span class="p">)[:</span><span class="n">window</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">/=</span> <span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tau</span> <span class="o">/</span> <span class="n">true_tau</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"emcee3 estimate"</span><span class="p">)</span>
+    <span class="n">f_az</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">autocorr</span><span class="p">(</span><span class="n">y</span><span class="p">[:,:</span><span class="n">nn</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,:</span><span class="n">window</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">f_az</span> <span class="o">=</span> <span class="n">f_az</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tau</span> <span class="o">/</span> <span class="n">true_tau</span><span class="p">,</span> <span class="n">f_az</span><span class="o">/</span><span class="n">f_az</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">"arviz estimate"</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s">'--'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">r"$N = {0}\,\tau_\mathrmtrue$"</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">r"$\tau / \tau_\mathrm{true}$"</span><span class="p">)</span>
+
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">r"$\rho_f(\tau)$"</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">window</span> <span class="o">/</span> <span class="n">true_tau</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><img src="/notebooks/emcee_autocorrelation/emcee_autocorrelation_time_files/emcee_autocorrelation_time_7_0.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Automated windowing procedure following Sokal (1989)
+</span><span class="k">def</span> <span class="nf">auto_window</span><span class="p">(</span><span class="n">taus</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">taus</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">c</span> <span class="o">*</span> <span class="n">taus</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="nb">any</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">taus</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+<span class="c1"># Following the suggestion from Goodman &amp; Weare (2010)
+</span><span class="k">def</span> <span class="nf">autocorr_gw2010</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">5.0</span><span class="p">):</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">autocorr_func_1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">taus</span> <span class="o">=</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">-</span><span class="mf">1.0</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">auto_window</span><span class="p">(</span><span class="n">taus</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">taus</span><span class="p">[</span><span class="n">window</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">autocorr_new</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">5.0</span><span class="p">):</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">yy</span> <span class="ow">in</span> <span class="n">y</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">+=</span> <span class="n">autocorr_func_1d</span><span class="p">(</span><span class="n">yy</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">/=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">taus</span> <span class="o">=</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">-</span><span class="mf">1.0</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">auto_window</span><span class="p">(</span><span class="n">taus</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">taus</span><span class="p">[</span><span class="n">window</span><span class="p">]</span>
+
+<span class="c1"># Compute the estimators for a few different chain lengths
+</span><span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">gw2010</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+<span class="n">new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+<span class="n">az_tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+    <span class="n">gw2010</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocorr_gw2010</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n</span><span class="p">])</span>
+    <span class="n">new</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocorr_new</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n</span><span class="p">])</span>
+    <span class="n">az_tau</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">az</span><span class="o">.</span><span class="n">ess</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n</span><span class="p">],</span> <span class="n">relative</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">"mean"</span><span class="p">)</span>
+
+<span class="c1"># Plot the comparisons
+</span><span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">true_tau</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"k"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"truth"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"emcee3"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">az_tau</span><span class="p">,</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"arviz"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">gw2010</span><span class="p">,</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"G</span><span class="err">\</span><span class="s">&amp;W 2010"</span><span class="p">)</span>
+<span class="n">ylim</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span> <span class="o">/</span> <span class="mf">50.0</span><span class="p">,</span> <span class="s">"--k"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">r"$\tau = N/50$"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"number of samples, $N$"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">r"$\tau$ estimates"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><img src="/notebooks/emcee_autocorrelation/emcee_autocorrelation_time_files/emcee_autocorrelation_time_8_0.png" alt="png" /></p>
+
+<p>This figure add ArviZ to the comparison between emcee3 autocorrelation time calculation and the original algorithm proposed in:</p>
+
+<ul>
+  <li>Goodman, J., &amp; Weare, J. (2010). Ensemble samplers with affine invariance. Communications in applied mathematics and computational science, 5(1), 65-80.</li>
+</ul>
+
+<p>to estimate the autocorrelation time of Affine Invariant MCMC Ensemble Samplers.</p>
+
+<h2 id="a-more-realistic-example">A more realistic example</h2>
+<p>A second example using real emcee samples is also tested to show that the autocorrelation time converges to a given value as the number of samples grow. In our case, we also want to show that the autocorrelation time converges to the same value independently of the method used.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">log_prob</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">logaddexp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">((</span><span class="n">p</span><span class="o">-</span><span class="mf">4.0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+
+<span class="n">sampler</span> <span class="o">=</span> <span class="n">emcee</span><span class="o">.</span><span class="n">EnsembleSampler</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">log_prob</span><span class="p">)</span>
+<span class="n">sampler</span><span class="o">.</span><span class="n">run_mcmc</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="mf">4.0</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <span class="mi">500000</span><span class="p">,</span>
+    <span class="n">progress</span><span class="o">=</span><span class="bp">True</span>
+<span class="p">);</span>
+</code></pre></div></div>
+
+<pre><code>100%|██████████| 500000/500000 [07:23&lt;00:00, 1128.42it/s]
+</code></pre>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">chain</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_chain</span><span class="p">()[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">r"$\theta$"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">r"$p(\theta)$"</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><img src="/notebooks/emcee_autocorrelation/emcee_autocorrelation_time_files/emcee_autocorrelation_time_12_0.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Compute the estimators for a few different chain lengths
+</span><span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">gw2010</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+<span class="n">new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+<span class="n">az_tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+    <span class="n">gw2010</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocorr_gw2010</span><span class="p">(</span><span class="n">chain</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n</span><span class="p">])</span>
+    <span class="n">new</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocorr_new</span><span class="p">(</span><span class="n">chain</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n</span><span class="p">])</span>
+    <span class="n">az_tau</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">az</span><span class="o">.</span><span class="n">ess</span><span class="p">(</span><span class="n">chain</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n</span><span class="p">],</span> <span class="n">relative</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">"mean"</span><span class="p">)</span>
+
+<span class="c1"># Plot the comparisons
+</span><span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"emcee3"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">az_tau</span><span class="p">,</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"arviz"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">gw2010</span><span class="p">,</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"G</span><span class="err">\</span><span class="s">&amp;W 2010"</span><span class="p">)</span>
+<span class="n">ylim</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span> <span class="o">/</span> <span class="mf">50.0</span><span class="p">,</span> <span class="s">"--k"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">r"$\tau = N/50$"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"number of samples, $N$"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">r"$\tau$ estimates"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><img src="/notebooks/emcee_autocorrelation/emcee_autocorrelation_time_files/emcee_autocorrelation_time_13_0.png" alt="png" /></p>
+
+<p>This figure shows the comparison between the 3 autocorrelation time computation algorithms. It can be seen that indeed all 3 methods converge to the same value for a large number of samples. However, when there are fewer samples, there are important differences between ArviZ and emcee results. ArviZ tends to return a larger (and closer to the asymptote) value. It also overestimates the autocorrelation time for medium sample sizes, however, an overestimation like this would only make the user increase the number of samples, which is no big problem in general. If ArviZ instead tended to underestimate the autocorrelation time, some incorrect or unconverged result could be interpreted as correct. Overall, it looks like, again, ArviZ’s implementation can be used to estimate the proper autocorrelation time.</p>
+
+<p>Note: I am using <code>method="mean"</code> in ArviZ effective sample size because our goal is to estimate the effective sample size (and then from it the autocorrelation time), however, to assess MCMC convergence, methods <code>"bulk"</code> (default method for <code>az.ess</code>) and <code>"tail"</code> are recommended.</p>
+
+<h2 id="what-about-shorter-chains">What about shorter chains?</h2>
+<p>In addition, there is also a section to test if it is possible to estimate the autocorrelation time modelling it as a parameter in a model. This models could be used in cases where it is not possible to run long simulations, so their autocorrelation time estimate cannot be trusted.</p>
+
+<p>Here too, the parametric models for autocorrelation are computed on emcee and ArviZ autocorrelation time estimates.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
+
+<span class="k">def</span> <span class="nf">autocorr_ml</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">thin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s">'emcee3'</span><span class="p">):</span>
+    <span class="c1"># Compute the initial estimate of tau using the standard method
+</span>    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s">'arviz'</span><span class="p">:</span>
+        <span class="n">init</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">az</span><span class="o">.</span><span class="n">ess</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">"mean"</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">init</span> <span class="o">=</span> <span class="n">autocorr_new</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:,</span> <span class="p">::</span><span class="n">thin</span><span class="p">]</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># Build the GP model
+</span>    <span class="n">tau</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">init</span><span class="o">/</span><span class="n">thin</span><span class="p">)</span>
+    <span class="n">kernel</span> <span class="o">=</span> <span class="n">terms</span><span class="o">.</span><span class="n">RealTerm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">0.9</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">z</span><span class="p">)),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">tau</span><span class="p">),</span>
+                        <span class="n">bounds</span><span class="o">=</span><span class="p">[(</span><span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">N</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">)])</span>
+    <span class="n">kernel</span> <span class="o">+=</span> <span class="n">terms</span><span class="o">.</span><span class="n">RealTerm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">0.1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">z</span><span class="p">)),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">tau</span><span class="p">),</span>
+                             <span class="n">bounds</span><span class="o">=</span><span class="p">[(</span><span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">N</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">)])</span>
+    <span class="n">gp</span> <span class="o">=</span> <span class="n">celerite</span><span class="o">.</span><span class="n">GP</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
+    <span class="n">gp</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="c1"># Define the objective
+</span>    <span class="k">def</span> <span class="nf">nll</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+        <span class="c1"># Update the GP model
+</span>        <span class="n">gp</span><span class="o">.</span><span class="n">set_parameter_vector</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="c1"># Loop over the chains and compute likelihoods
+</span>        <span class="n">v</span><span class="p">,</span> <span class="n">g</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">(</span>
+            <span class="n">gp</span><span class="o">.</span><span class="n">grad_log_likelihood</span><span class="p">(</span><span class="n">z0</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">z0</span> <span class="ow">in</span> <span class="n">z</span>
+        <span class="p">))</span>
+
+        <span class="c1"># Combine the datasets
+</span>        <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Optimize the model
+</span>    <span class="n">p0</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">get_parameter_vector</span><span class="p">()</span>
+    <span class="n">bounds</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">get_parameter_bounds</span><span class="p">()</span>
+    <span class="n">soln</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">,</span> <span class="n">p0</span><span class="p">,</span> <span class="n">jac</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">)</span>
+    <span class="n">gp</span><span class="o">.</span><span class="n">set_parameter_vector</span><span class="p">(</span><span class="n">soln</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="c1"># Compute the maximum likelihood tau
+</span>    <span class="n">a</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="n">thin</span> <span class="o">*</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">a</span> <span class="o">/</span> <span class="n">c</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tau</span>
+
+<span class="c1"># Calculate the estimate for a set of different chain lengths
+</span><span class="n">ml</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+<span class="n">ml</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="n">ml_az</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+<span class="n">ml_az</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">N</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">8</span><span class="p">]):</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">thin</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.05</span><span class="o">*</span><span class="n">new</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="n">ml</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocorr_ml</span><span class="p">(</span><span class="n">chain</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n</span><span class="p">],</span> <span class="n">thin</span><span class="o">=</span><span class="n">thin</span><span class="p">)</span>
+    <span class="n">ml_az</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocorr_ml</span><span class="p">(</span><span class="n">chain</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n</span><span class="p">],</span> <span class="n">kind</span><span class="o">=</span><span class="s">'arviz'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Plot the comparisons
+</span><span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"emcee3"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">az_tau</span><span class="p">,</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"arviz"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">gw2010</span><span class="p">,</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"G</span><span class="err">\</span><span class="s">&amp;W 2010"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">ml</span><span class="p">,</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"ML"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">ml_az</span><span class="p">,</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"ML arviz"</span><span class="p">)</span>
+<span class="n">ylim</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span> <span class="o">/</span> <span class="mf">50.0</span><span class="p">,</span> <span class="s">"--k"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">r"$\tau = N/50$"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"number of samples, $N$"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">r"$\tau$ estimates"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><img src="/notebooks/emcee_autocorrelation/emcee_autocorrelation_time_files/emcee_autocorrelation_time_17_0.png" alt="png" /></p>
+
+<h2 id="back-to-toy-model">Back to toy model</h2>
+<p>Starting from now, this post diverges from the tutorial on the emcee docs, to check the behaviour of ArviZ implementation in a broader range of cases. Here, the parametric models for autocorrelation are also tested for validation on the toy model, where we know the autocorrelation time.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Compute the estimators for a few different chain lengths
+</span><span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">gw2010</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+<span class="n">new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+<span class="n">az_tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+    <span class="n">gw2010</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocorr_gw2010</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n</span><span class="p">])</span>
+    <span class="n">new</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocorr_new</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n</span><span class="p">])</span>
+    <span class="n">az_tau</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">az</span><span class="o">.</span><span class="n">ess</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n</span><span class="p">],</span> <span class="n">relative</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">"mean"</span><span class="p">)</span>
+
+<span class="c1"># Calculate the estimate for a set of different chain lengths
+</span><span class="n">ml</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+<span class="n">ml</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="n">ml_az</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+<span class="n">ml_az</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">N</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">8</span><span class="p">]):</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">thin</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.05</span><span class="o">*</span><span class="n">new</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="n">ml</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocorr_ml</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n</span><span class="p">],</span> <span class="n">thin</span><span class="o">=</span><span class="n">thin</span><span class="p">)</span>
+    <span class="n">ml_az</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocorr_ml</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n</span><span class="p">],</span> <span class="n">kind</span><span class="o">=</span><span class="s">'arviz'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Plot the comparisons
+</span><span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">true_tau</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"k"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"truth"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"emcee3"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">az_tau</span><span class="p">,</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"arviz"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">gw2010</span><span class="p">,</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"G</span><span class="err">\</span><span class="s">&amp;W 2010"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">ml</span><span class="p">,</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"ML"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">ml_az</span><span class="p">,</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"ML arviz"</span><span class="p">)</span>
+<span class="n">ylim</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span> <span class="o">/</span> <span class="mf">50.0</span><span class="p">,</span> <span class="s">"--k"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">r"$\tau = N/50$"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"number of samples, $N$"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">r"$\tau$ estimates"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><img src="/notebooks/emcee_autocorrelation/emcee_autocorrelation_time_files/emcee_autocorrelation_time_20_0.png" alt="png" /></p>
+
+<h2 id="a-2nd-realistic-example">A 2nd realistic example</h2>
+<p>Finally, the different autocorrelation time estimates are compared on the well known 8 schools model to see if the estimates agree for all 10 variables.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">J</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">y_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">28.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">18.0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">])</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">15.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">16.0</span><span class="p">,</span> <span class="mf">11.0</span><span class="p">,</span> <span class="mf">9.0</span><span class="p">,</span> <span class="mf">11.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">18.0</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">log_prior_8school</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">J</span><span class="p">):</span>
+    <span class="n">mu</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">eta</span> <span class="o">=</span> <span class="n">theta</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">theta</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">theta</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+    <span class="c1"># Half-cauchy prior, hwhm=25
+</span>    <span class="k">if</span> <span class="n">tau</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">prior_tau</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">tau</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">25</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">prior_mu</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">mu</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>  <span class="c1"># normal prior, loc=0, scale=10
+</span>    <span class="n">prior_eta</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">eta</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># normal prior, loc=0, scale=1
+</span>    <span class="k">return</span> <span class="n">prior_mu</span> <span class="o">+</span> <span class="n">prior_tau</span> <span class="o">+</span> <span class="n">prior_eta</span>
+
+<span class="k">def</span> <span class="nf">log_likelihood_8school</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
+    <span class="n">mu</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">eta</span> <span class="o">=</span> <span class="n">theta</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">theta</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">theta</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+    <span class="k">return</span> <span class="o">-</span><span class="p">((</span><span class="n">mu</span> <span class="o">+</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">eta</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="n">sigma</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+
+<span class="k">def</span> <span class="nf">lnprob_8school</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">J</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
+    <span class="n">prior</span> <span class="o">=</span> <span class="n">log_prior_8school</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">J</span><span class="p">)</span>
+    <span class="n">like_vect</span> <span class="o">=</span> <span class="n">log_likelihood_8school</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+    <span class="n">like</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">like_vect</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">like</span> <span class="o">+</span> <span class="n">prior</span>
+
+<span class="n">nwalkers</span><span class="p">,</span> <span class="n">draws</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">60000</span>
+<span class="n">ndim</span> <span class="o">=</span> <span class="n">J</span> <span class="o">+</span> <span class="mi">2</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">nwalkers</span><span class="p">,</span> <span class="n">ndim</span><span class="p">))</span>
+<span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+
+<span class="n">sampler</span> <span class="o">=</span> <span class="n">emcee</span><span class="o">.</span><span class="n">EnsembleSampler</span><span class="p">(</span>
+    <span class="n">nwalkers</span><span class="p">,</span>
+    <span class="n">ndim</span><span class="p">,</span>
+    <span class="n">lnprob_8school</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">J</span><span class="p">,</span> <span class="n">y_obs</span><span class="p">,</span> <span class="n">sigma</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">sampler</span><span class="o">.</span><span class="n">run_mcmc</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">draws</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="bp">True</span><span class="p">);</span>
+</code></pre></div></div>
+
+<pre><code>100%|██████████| 60000/60000 [01:48&lt;00:00, 552.56it/s]
+</code></pre>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">idata</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_emcee</span><span class="p">(</span><span class="n">sampler</span><span class="p">)</span>
+<span class="n">burnin</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">idata</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">draw</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">burnin</span><span class="p">,</span><span class="bp">None</span><span class="p">))</span>
+<span class="n">data_8school</span> <span class="o">=</span> <span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">to_array</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Compute the estimators for a few different chain lengths
+</span><span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">data_8school</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">gw2010</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">),</span><span class="n">ndim</span><span class="p">))</span>
+<span class="n">new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">),</span><span class="n">ndim</span><span class="p">))</span>
+<span class="n">az_tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">),</span><span class="n">ndim</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndim</span><span class="p">):</span>
+    <span class="n">chain</span> <span class="o">=</span> <span class="n">data_8school</span><span class="p">[:,:,</span><span class="n">d</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">gw2010</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocorr_gw2010</span><span class="p">(</span><span class="n">chain</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n</span><span class="p">])</span>
+        <span class="n">new</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocorr_new</span><span class="p">(</span><span class="n">chain</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n</span><span class="p">])</span>
+        <span class="n">az_tau</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">az</span><span class="o">.</span><span class="n">ess</span><span class="p">(</span><span class="n">chain</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n</span><span class="p">],</span> <span class="n">relative</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">"mean"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s">"mu"</span><span class="p">,</span> <span class="s">"tau"</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s">"eta</span><span class="se">\n</span><span class="s">{}"</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">15</span><span class="p">))</span>
+<span class="n">axes</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndim</span><span class="p">):</span>
+    <span class="c1"># Plot the comparisons
+</span>    <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="n">d</span><span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">new</span><span class="p">[:,</span><span class="n">d</span><span class="p">],</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"emcee3"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">az_tau</span><span class="p">[:,</span><span class="n">d</span><span class="p">],</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"arviz"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">gw2010</span><span class="p">[:,</span><span class="n">d</span><span class="p">],</span> <span class="s">"o-"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"G</span><span class="err">\</span><span class="s">&amp;W 2010"</span><span class="p">)</span>
+    <span class="n">ylim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span> <span class="o">/</span> <span class="mf">50.0</span><span class="p">,</span> <span class="s">"--k"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">r"$\tau = N/50$"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">"number of samples, $N$"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">r"$\tau$ estimates"</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><img src="/notebooks/emcee_autocorrelation/emcee_autocorrelation_time_files/emcee_autocorrelation_time_25_0.png" alt="png" /></p>
+
+<p>To sum up, ArviZ results converge to the same value as emcee estimates, and when they don’t, it is always for $\tau &gt; N/50$. Moreover, for $\tau &gt; N/50$, ArviZ result tends to be more restrictive, enforcing the convergence criterion $\tau &lt; N/50$ in a little more strict manner than emcee.</p>
+
+</p>
+	</div>
+</section>
+
+</div>
+
+    <!-- Footer -->
+	<footer id="footer">
+		<div class="inner">
+			<ul class="copyright">
+				
+				
+				
+				
+				
+				
+				
+				
+				<li><a href="https://github.com/OriolAbril" class="icon fa-github" target="_blank"><span class="label">GitHub</span></a></li>
+				
+				
+				
+				<li>&copy; GSoC blog Oriol Abril</li>
+				<li>Design: <a href="https://html5up.net" target="_blank">HTML5 UP</a></li>
+				<li>Jekyll integration: <a href="https://gitlab.com/andrewbanchich" target="_blank">Andrew Banchich</a></li>
+			</ul>
+		</div>
+	</footer>
+
+</div>
+
+<!-- Scripts -->
+	<script src="/assets/js/jquery.min.js"></script>
+	<script src="/assets/js/jquery.scrolly.min.js"></script>
+	<script src="/assets/js/jquery.scrollex.min.js"></script>
+	<script src="/assets/js/skel.min.js"></script>
+	<script src="/assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="/assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="/assets/js/main.js"></script>
+
+
+</body>
+
+</html>
