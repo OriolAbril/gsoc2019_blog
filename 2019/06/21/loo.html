@@ -10,13 +10,13 @@
 	<title>GSoC blog</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-	<!--[if lte IE 8]><script src="/assets/js/ie/html5shiv.js"></script><![endif]-->
-	<link rel="stylesheet" href="/assets/css/main.css" />
-	<!--[if lte IE 9]><link rel="stylesheet" href="/assets/css/ie9.css" /><![endif]-->
-	<!--[if lte IE 8]><link rel="stylesheet" href="/assets/css/ie8.css" /><![endif]-->
+	<!--[if lte IE 8]><script src="/gsoc2019_blog/assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="/gsoc2019_blog/assets/css/main.css" />
+	<!--[if lte IE 9]><link rel="stylesheet" href="/gsoc2019_blog/assets/css/ie9.css" /><![endif]-->
+	<!--[if lte IE 8]><link rel="stylesheet" href="/gsoc2019_blog/assets/css/ie8.css" /><![endif]-->
 
     <!-- Favicon head tag -->
-    <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+    <link rel="shortcut icon" type="image/x-icon" href="/gsoc2019_blog/assets/favicon.ico" />
 </head>
 
 
@@ -27,7 +27,7 @@
 
 <!-- Header -->
 <header id="header">
-	<a href="/" class="logo"><strong>GSoC blog</strong> <span></span></a>
+	<a href="/gsoc2019_blog/" class="logo"><strong>GSoC blog</strong> <span></span></a>
 	<nav>
 		<a href="#menu">Menu</a>
 	</nav>
@@ -42,7 +42,7 @@
 		    
 		
 		    
-		        <li><a href="/">Home</a></li>
+		        <li><a href="/gsoc2019_blog/">Home</a></li>
 	    	
 		
 		    
@@ -58,11 +58,11 @@
 		    
 		
 		    
-		        <li><a href="/oss.html">Open Source Software</a></li>
+		        <li><a href="/gsoc2019_blog/oss.html">Open Source Software</a></li>
 		    
 		
 		    
-		        <li><a href="/about.html">About me</a></li>
+		        <li><a href="/gsoc2019_blog/about.html">About me</a></li>
 		    
 		
 	</ul>
@@ -114,7 +114,7 @@
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
 </code></pre></div></div>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s">'../forty_blog.mplstyle'</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">style</span><span class="p">.</span><span class="n">use</span><span class="p">(</span><span class="s">'../forty_blog.mplstyle'</span><span class="p">)</span>
 </code></pre></div></div>
 
 <h2 id="mathematical-derivation-and-validation-example">Mathematical derivation and validation example</h2>
@@ -130,8 +130,8 @@
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mu</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">sigma</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">logy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logy</span><span class="p">)</span> <span class="c1"># y will then be distributed as lognormal
+<span class="n">logy</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logy</span><span class="p">)</span> <span class="c1"># y will then be distributed as lognormal
 </span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">'N'</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span>
     <span class="s">'y'</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span>
@@ -140,7 +140,7 @@
 </code></pre></div></div>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"lognormal.stan"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">lognormal_code</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">lognormal_code</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="n">read</span><span class="p">()</span>
 </code></pre></div></div>
 
 <details>
@@ -178,14 +178,14 @@ generated quantities {
 </details>
 <p><br /></p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sm_lognormal</span> <span class="o">=</span> <span class="n">pystan</span><span class="o">.</span><span class="n">StanModel</span><span class="p">(</span><span class="n">model_code</span><span class="o">=</span><span class="n">lognormal_code</span><span class="p">)</span>
-<span class="n">fit_lognormal</span> <span class="o">=</span> <span class="n">sm_lognormal</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sm_lognormal</span> <span class="o">=</span> <span class="n">pystan</span><span class="p">.</span><span class="n">StanModel</span><span class="p">(</span><span class="n">model_code</span><span class="o">=</span><span class="n">lognormal_code</span><span class="p">)</span>
+<span class="n">fit_lognormal</span> <span class="o">=</span> <span class="n">sm_lognormal</span><span class="p">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 </code></pre></div></div>
 
 <pre><code>INFO:pystan:COMPILING THE C++ CODE FOR MODEL anon_model_fa0385baccb7b330f85e0cacaa99fa9d NOW.
 </code></pre>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">idata_lognormal</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pystan</span><span class="p">(</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">idata_lognormal</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">from_pystan</span><span class="p">(</span>
     <span class="n">posterior</span><span class="o">=</span><span class="n">fit_lognormal</span><span class="p">,</span>
     <span class="n">posterior_predictive</span><span class="o">=</span><span class="s">'y_hat'</span><span class="p">,</span>
     <span class="n">observed_data</span><span class="o">=</span><span class="p">[</span><span class="s">'y'</span><span class="p">],</span>
@@ -194,7 +194,7 @@ generated quantities {
 </code></pre></div></div>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"normal_on_log.stan"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">normal_on_log_code</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">normal_on_log_code</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="n">read</span><span class="p">()</span>
 </code></pre></div></div>
 
 <details>
@@ -232,14 +232,14 @@ generated quantities {
 </details>
 <p><br /></p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sm_normal</span> <span class="o">=</span> <span class="n">pystan</span><span class="o">.</span><span class="n">StanModel</span><span class="p">(</span><span class="n">model_code</span><span class="o">=</span><span class="n">normal_on_log_code</span><span class="p">)</span>
-<span class="n">fit_normal</span> <span class="o">=</span> <span class="n">sm_normal</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sm_normal</span> <span class="o">=</span> <span class="n">pystan</span><span class="p">.</span><span class="n">StanModel</span><span class="p">(</span><span class="n">model_code</span><span class="o">=</span><span class="n">normal_on_log_code</span><span class="p">)</span>
+<span class="n">fit_normal</span> <span class="o">=</span> <span class="n">sm_normal</span><span class="p">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 </code></pre></div></div>
 
 <pre><code>INFO:pystan:COMPILING THE C++ CODE FOR MODEL anon_model_6b25918853568e528afbe629c1103e09 NOW.
 </code></pre>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">idata_normal</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pystan</span><span class="p">(</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">idata_normal</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">from_pystan</span><span class="p">(</span>
     <span class="n">posterior</span><span class="o">=</span><span class="n">fit_normal</span><span class="p">,</span>
     <span class="n">posterior_predictive</span><span class="o">=</span><span class="s">'logy_hat'</span><span class="p">,</span>
     <span class="n">observed_data</span><span class="o">=</span><span class="p">[</span><span class="s">'logy'</span><span class="p">],</span>
@@ -249,7 +249,7 @@ generated quantities {
 
 <p>Check model convergence. Use <code>az.summary</code> to in one view that the effective sample size (ESS) is large enough and $\hat{R}$ is close to one.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata_lognormal</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="p">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata_lognormal</span><span class="p">)</span>
 </code></pre></div></div>
 
 <div>
@@ -317,7 +317,7 @@ generated quantities {
 </table>
 </div>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata_normal</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="p">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata_normal</span><span class="p">)</span>
 </code></pre></div></div>
 
 <div>
@@ -387,7 +387,7 @@ generated quantities {
 
 <p>In addition, we can plot the quantile ESS plot for one of them directly with <code>plot_ess</code></p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">plot_ess</span><span class="p">(</span><span class="n">idata_normal</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s">"quantile"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"k"</span><span class="p">);</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="p">.</span><span class="n">plot_ess</span><span class="p">(</span><span class="n">idata_normal</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s">"quantile"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"k"</span><span class="p">);</span>
 </code></pre></div></div>
 
 <p><img src="/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_22_0.png" alt="png" /></p>
@@ -395,12 +395,12 @@ generated quantities {
 <h3 id="posterior-validation">Posterior validation</h3>
 <p>Check that both models are equivalent and do indeed give the same result for both parameters.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">idata_lognormal</span><span class="p">);</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="p">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">idata_lognormal</span><span class="p">);</span>
 </code></pre></div></div>
 
 <p><img src="/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_24_0.png" alt="png" /></p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">idata_normal</span><span class="p">);</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="p">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">idata_normal</span><span class="p">);</span>
 </code></pre></div></div>
 
 <p><img src="/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_25_0.png" alt="png" /></p>
@@ -408,7 +408,7 @@ generated quantities {
 <h3 id="calculate-loo-cv">Calculate LOO-CV</h3>
 <p>Now we get to calculate LOO-CV using Pareto Smoothed Importance Sampling as detailed in Vehtari et al., 2017. As we explained above, both models are equivalent, but one is in terms of $y$ and the other in terms of $\log y$. Therefore, their likelihoods will be on different scales, and hence, their expected log predictive density will also be different.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_lognormal</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="p">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_lognormal</span><span class="p">)</span>
 </code></pre></div></div>
 
 <pre><code>Computed from 2000 by 30 log-likelihood matrix
@@ -418,7 +418,7 @@ IC_loo   226.00    14.38
 p_loo      2.05        -
 </code></pre>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_normal</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="p">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_normal</span><span class="p">)</span>
 </code></pre></div></div>
 
 <pre><code>Computed from 2000 by 30 log-likelihood matrix
@@ -436,34 +436,34 @@ p_loo      2.00        -
   <li>Calculate elpd LOO as:</li>
 </ol>
 
-<script type="math/tex; mode=display">\text{elpd}_{psis-loo} = \sum_{i=1}^n \log \left( \frac{\sum_s w_i^s p(y_i|\theta^s)}{\sum_s w_i^s} \right)</script>
+\[\text{elpd}_{psis-loo} = \sum_{i=1}^n \log \left( \frac{\sum_s w_i^s p(y_i|\theta^s)}{\sum_s w_i^s} \right)\]
 
 <p>This will estimate the out of sample predictive fit of $y$ (where $y$ is the data of the model. Therefore, for the first model, using a LogNormal distribution, we are indeed calculating the desired quantity:</p>
 
-<script type="math/tex; mode=display">\text{elpd}_{psis-loo}^{(1)} \approx \sum_{i=1}^n \log p(y_i|y_{-i})</script>
+\[\text{elpd}_{psis-loo}^{(1)} \approx \sum_{i=1}^n \log p(y_i|y_{-i})\]
 
 <p>Whereas for the second model, we are calculating:</p>
 
-<script type="math/tex; mode=display">\text{elpd}_{psis-loo}^{(2)} \approx \sum_{i=1}^n \log p(z_i|z_{-i})</script>
+\[\text{elpd}_{psis-loo}^{(2)} \approx \sum_{i=1}^n \log p(z_i|z_{-i})\]
 
 <p>being $z_i = \log y_i$. We actually have two different probability density functions, one over $y$ which from here on we will note $p_y(y)$, and $p_z(z)$.</p>
 
 <p>In order to estimate the elpd loo for $y$ from the data in the second model, $z$, we have to describe $p_y(y)$ as a function of $z$ and $p_z(z)$. We know that $y$ and $z$ are actually related, and we can use this relation to find how would the random variable $y$ (which is actually a transformation of the random variable $z$) be distributed. This is done with the Jacobian. Therefore:</p>
 
-<script type="math/tex; mode=display">p_y(y|\theta)=p_z(z|\theta)|\frac{dz}{dy}|=\frac{1}{|y|}p_z(z|\theta)=e^{-z}p_z(z|\theta)</script>
+\[p_y(y|\theta)=p_z(z|\theta)|\frac{dz}{dy}|=\frac{1}{|y|}p_z(z|\theta)=e^{-z}p_z(z|\theta)\]
 
 <p>In the log scale:</p>
 
-<script type="math/tex; mode=display">\log p_y(y|\theta)=-z + \log p_z(z|\theta)</script>
+\[\log p_y(y|\theta)=-z + \log p_z(z|\theta)\]
 
 <p>We apply the results to the log likelihood data of the second model (the normal on the logarithm instead of the lognormal) and check that now the result does coincide with the LOO-CV estimated by the lognormal model.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">old_like</span> <span class="o">=</span> <span class="n">idata_normal</span><span class="o">.</span><span class="n">sample_stats</span><span class="o">.</span><span class="n">log_likelihood</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">old_like</span> <span class="o">=</span> <span class="n">idata_normal</span><span class="p">.</span><span class="n">sample_stats</span><span class="p">.</span><span class="n">log_likelihood</span>
 <span class="n">z</span> <span class="o">=</span> <span class="n">logy</span>
-<span class="n">idata_normal</span><span class="o">.</span><span class="n">sample_stats</span><span class="p">[</span><span class="s">"log_likelihood"</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">z</span><span class="o">+</span><span class="n">old_like</span>
+<span class="n">idata_normal</span><span class="p">.</span><span class="n">sample_stats</span><span class="p">[</span><span class="s">"log_likelihood"</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">z</span><span class="o">+</span><span class="n">old_like</span>
 </code></pre></div></div>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_normal</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="p">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_normal</span><span class="p">)</span>
 </code></pre></div></div>
 
 <pre><code>Computed from 2000 by 30 log-likelihood matrix
@@ -477,33 +477,32 @@ p_loo      2.00        -
 
 <p>We will now use as data a subsample of a <a href="https://docs.google.com/spreadsheets/d/1gt1Dvi7AnQJiBb5vKaxanTis_sfd4sC4sVoswM1Fz7s/pub#">real dataset</a>. The subset has been selected using:</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s">"indicator breast female incidence.xlsx"</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s">"Breast Female Incidence"</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">thresh</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
-<span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s">"indicator_breast_female_incidence.csv"</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s">"indicator breast female incidence.xlsx"</span><span class="p">).</span><span class="n">set_index</span><span class="p">(</span><span class="s">"Breast Female Incidence"</span><span class="p">).</span><span class="n">dropna</span><span class="p">(</span><span class="n">thresh</span><span class="o">=</span><span class="mi">20</span><span class="p">).</span><span class="n">T</span>
+<span class="n">df</span><span class="p">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s">"indicator_breast_female_incidence.csv"</span><span class="p">)</span>
 </code></pre></div></div>
 
 <p>Below, the data is loaded and plotted for inspection.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">"indicator_breast_female_incidence.csv"</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">"indicator_breast_female_incidence.csv"</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">df</span><span class="p">.</span><span class="n">plot</span><span class="p">();</span>
 </code></pre></div></div>
 
 <p><img src="/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_37_0.png" alt="png" /></p>
 
 <p>In order to show different examples of LOO on transformed data, we will take into account the following models:</p>
 
-<script type="math/tex; mode=display">% <![CDATA[
-\begin{align}
-&y=a_1 x+a_0 \\
-&y=e^{b_0}e^{b_1 x}  &\rightarrow& \quad\log y = z_1 = b_1 x + b_0\\
-&y=c_1^2 x^2 + 2 c_1 c_2 x + c_0^2  &\rightarrow& \quad\sqrt{y} = z_2 = c_1 x + c_0
-\end{align} %]]></script>
+\[\begin{align}
+&amp;y=a_1 x+a_0 \\
+&amp;y=e^{b_0}e^{b_1 x}  &amp;\rightarrow&amp; \quad\log y = z_1 = b_1 x + b_0\\
+&amp;y=c_1^2 x^2 + 2 c_1 c_2 x + c_0^2  &amp;\rightarrow&amp; \quad\sqrt{y} = z_2 = c_1 x + c_0
+\end{align}\]
 
 <p>This models have been chosen mainly because of their simplicity. In addition, they can all be applied using the same Stan code and the data looks kind of linear. This will put the focus of the example on the loo calculation instead of on the model itself. For the online example, the data from Finland has been chosen, but feel free to download the notebook and experiment with it.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">y_data</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Finland</span>
-<span class="n">z1_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y_data</span><span class="p">)</span>
-<span class="n">z2_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y_data</span><span class="p">)</span>
-<span class="n">x_data</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">/</span><span class="mi">100</span> <span class="c1"># rescale to set both to a similar scale
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">y_data</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">Finland</span>
+<span class="n">z1_data</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="n">y_data</span><span class="p">)</span>
+<span class="n">z2_data</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y_data</span><span class="p">)</span>
+<span class="n">x_data</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">index</span><span class="o">/</span><span class="mi">100</span> <span class="c1"># rescale to set both to a similar scale
 </span><span class="n">dict_y</span> <span class="o">=</span> <span class="p">{</span><span class="s">"N"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_data</span><span class="p">),</span> <span class="s">"y"</span><span class="p">:</span> <span class="n">y_data</span><span class="p">,</span> <span class="s">"x"</span><span class="p">:</span> <span class="n">x_data</span><span class="p">}</span>
 <span class="n">dict_z1</span> <span class="o">=</span> <span class="p">{</span><span class="s">"N"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_data</span><span class="p">),</span> <span class="s">"y"</span><span class="p">:</span> <span class="n">z1_data</span><span class="p">,</span> <span class="s">"x"</span><span class="p">:</span> <span class="n">x_data</span><span class="p">}</span>
 <span class="n">dict_z2</span> <span class="o">=</span> <span class="p">{</span><span class="s">"N"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_data</span><span class="p">),</span> <span class="s">"y"</span><span class="p">:</span> <span class="n">z2_data</span><span class="p">,</span> <span class="s">"x"</span><span class="p">:</span> <span class="n">x_data</span><span class="p">}</span>
@@ -512,7 +511,7 @@ p_loo      2.00        -
 </code></pre></div></div>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"linear_regression.stan"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">lr_code</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">lr_code</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="n">read</span><span class="p">()</span>
 </code></pre></div></div>
 
 <details>
@@ -556,27 +555,27 @@ generated quantities {
 </details>
 <p><br /></p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sm_lr</span> <span class="o">=</span> <span class="n">pystan</span><span class="o">.</span><span class="n">StanModel</span><span class="p">(</span><span class="n">model_code</span><span class="o">=</span><span class="n">lr_code</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sm_lr</span> <span class="o">=</span> <span class="n">pystan</span><span class="p">.</span><span class="n">StanModel</span><span class="p">(</span><span class="n">model_code</span><span class="o">=</span><span class="n">lr_code</span><span class="p">)</span>
 <span class="n">control</span> <span class="o">=</span> <span class="p">{</span><span class="s">"max_treedepth"</span><span class="p">:</span> <span class="mi">15</span><span class="p">}</span>
 </code></pre></div></div>
 
 <pre><code>INFO:pystan:COMPILING THE C++ CODE FOR MODEL anon_model_48dbd7ee0ddc95eb18559d7bcb63f497 NOW.
 </code></pre>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fit_y</span> <span class="o">=</span> <span class="n">sm_lr</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dict_y</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">control</span><span class="o">=</span><span class="n">control</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fit_y</span> <span class="o">=</span> <span class="n">sm_lr</span><span class="p">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dict_y</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">control</span><span class="o">=</span><span class="n">control</span><span class="p">)</span>
 </code></pre></div></div>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fit_z1</span> <span class="o">=</span> <span class="n">sm_lr</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dict_z1</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">control</span><span class="o">=</span><span class="n">control</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fit_z1</span> <span class="o">=</span> <span class="n">sm_lr</span><span class="p">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dict_z1</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">control</span><span class="o">=</span><span class="n">control</span><span class="p">)</span>
 </code></pre></div></div>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fit_z2</span> <span class="o">=</span> <span class="n">sm_lr</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dict_z2</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">control</span><span class="o">=</span><span class="n">control</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fit_z2</span> <span class="o">=</span> <span class="n">sm_lr</span><span class="p">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dict_z2</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">control</span><span class="o">=</span><span class="n">control</span><span class="p">)</span>
 </code></pre></div></div>
 
 <details>
   <summary>Convertion to InferenceData and posterior exploration
 </summary>
 
-  <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">idata_y</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pystan</span><span class="p">(</span>
+  <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">idata_y</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">from_pystan</span><span class="p">(</span>
     <span class="n">posterior</span><span class="o">=</span><span class="n">fit_y</span><span class="p">,</span>
     <span class="n">posterior_predictive</span><span class="o">=</span><span class="s">'y_hat'</span><span class="p">,</span>
     <span class="n">observed_data</span><span class="o">=</span><span class="p">[</span><span class="s">'y'</span><span class="p">],</span>
@@ -584,13 +583,13 @@ generated quantities {
     <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span>
     <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">idata_y</span><span class="o">.</span><span class="n">posterior</span> <span class="o">=</span> <span class="n">idata_y</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s">"b0"</span><span class="p">:</span> <span class="s">"a0"</span><span class="p">,</span> <span class="s">"b1"</span><span class="p">:</span> <span class="s">"a1"</span><span class="p">})</span>
-<span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">idata_y</span><span class="p">);</span>
+<span class="n">idata_y</span><span class="p">.</span><span class="n">posterior</span> <span class="o">=</span> <span class="n">idata_y</span><span class="p">.</span><span class="n">posterior</span><span class="p">.</span><span class="n">rename</span><span class="p">({</span><span class="s">"b0"</span><span class="p">:</span> <span class="s">"a0"</span><span class="p">,</span> <span class="s">"b1"</span><span class="p">:</span> <span class="s">"a1"</span><span class="p">})</span>
+<span class="n">az</span><span class="p">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">idata_y</span><span class="p">);</span>
 </code></pre></div>  </div>
 
   <p><img src="/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_49_0.png" alt="png" /></p>
 
-  <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">idata_z1</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pystan</span><span class="p">(</span>
+  <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">idata_z1</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">from_pystan</span><span class="p">(</span>
     <span class="n">posterior</span><span class="o">=</span><span class="n">fit_z1</span><span class="p">,</span>
     <span class="n">posterior_predictive</span><span class="o">=</span><span class="s">'y_hat'</span><span class="p">,</span>
     <span class="n">observed_data</span><span class="o">=</span><span class="p">[</span><span class="s">'y'</span><span class="p">],</span>
@@ -598,12 +597,12 @@ generated quantities {
     <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span>
     <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">idata_z1</span><span class="p">);</span>
+<span class="n">az</span><span class="p">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">idata_z1</span><span class="p">);</span>
 </code></pre></div>  </div>
 
   <p><img src="/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_50_0.png" alt="png" /></p>
 
-  <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">idata_z2</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pystan</span><span class="p">(</span>
+  <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">idata_z2</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">from_pystan</span><span class="p">(</span>
     <span class="n">posterior</span><span class="o">=</span><span class="n">fit_z2</span><span class="p">,</span>
     <span class="n">posterior_predictive</span><span class="o">=</span><span class="s">'y_hat'</span><span class="p">,</span>
     <span class="n">observed_data</span><span class="o">=</span><span class="p">[</span><span class="s">'y'</span><span class="p">],</span>
@@ -611,8 +610,8 @@ generated quantities {
     <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span>
     <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">idata_z2</span><span class="o">.</span><span class="n">posterior</span> <span class="o">=</span> <span class="n">idata_z2</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s">"b0"</span><span class="p">:</span> <span class="s">"c0"</span><span class="p">,</span> <span class="s">"b1"</span><span class="p">:</span> <span class="s">"c1"</span><span class="p">})</span>
-<span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">idata_z2</span><span class="p">);</span>
+<span class="n">idata_z2</span><span class="p">.</span><span class="n">posterior</span> <span class="o">=</span> <span class="n">idata_z2</span><span class="p">.</span><span class="n">posterior</span><span class="p">.</span><span class="n">rename</span><span class="p">({</span><span class="s">"b0"</span><span class="p">:</span> <span class="s">"c0"</span><span class="p">,</span> <span class="s">"b1"</span><span class="p">:</span> <span class="s">"c1"</span><span class="p">})</span>
+<span class="n">az</span><span class="p">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">idata_z2</span><span class="p">);</span>
 </code></pre></div>  </div>
 
   <p><img src="/notebooks/loo/LOO-CV_transformed_data_files/LOO-CV_transformed_data_51_0.png" alt="png" /></p>
@@ -626,21 +625,21 @@ generated quantities {
 
 <p>The transformation to apply to the second model $z_1 = \log y$ is the same as the previous example:</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">old_loo_z1</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_z1</span><span class="p">)</span><span class="o">.</span><span class="n">loo</span>
-<span class="n">old_like</span> <span class="o">=</span> <span class="n">idata_z1</span><span class="o">.</span><span class="n">sample_stats</span><span class="o">.</span><span class="n">log_likelihood</span>
-<span class="n">idata_z1</span><span class="o">.</span><span class="n">sample_stats</span><span class="p">[</span><span class="s">"log_likelihood"</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">z1_data</span><span class="o">.</span><span class="n">values</span><span class="o">+</span><span class="n">old_like</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">old_loo_z1</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_z1</span><span class="p">).</span><span class="n">loo</span>
+<span class="n">old_like</span> <span class="o">=</span> <span class="n">idata_z1</span><span class="p">.</span><span class="n">sample_stats</span><span class="p">.</span><span class="n">log_likelihood</span>
+<span class="n">idata_z1</span><span class="p">.</span><span class="n">sample_stats</span><span class="p">[</span><span class="s">"log_likelihood"</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">z1_data</span><span class="p">.</span><span class="n">values</span><span class="o">+</span><span class="n">old_like</span>
 </code></pre></div></div>
 
 <p>In the case of the third model, $z_2 = \sqrt{y}$:</p>
 
-<script type="math/tex; mode=display">|\frac{dz}{dy}| = |\frac{1}{2\sqrt{y}}| = \frac{1}{2 z_2} \quad \rightarrow \quad \log |\frac{dz}{dy}| = -\log (2 z_2)</script>
+\[|\frac{dz}{dy}| = |\frac{1}{2\sqrt{y}}| = \frac{1}{2 z_2} \quad \rightarrow \quad \log |\frac{dz}{dy}| = -\log (2 z_2)\]
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">old_loo_z2</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_z2</span><span class="p">)</span><span class="o">.</span><span class="n">loo</span>
-<span class="n">old_like</span> <span class="o">=</span> <span class="n">idata_z2</span><span class="o">.</span><span class="n">sample_stats</span><span class="o">.</span><span class="n">log_likelihood</span>
-<span class="n">idata_z2</span><span class="o">.</span><span class="n">sample_stats</span><span class="p">[</span><span class="s">"log_likelihood"</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">z2_data</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">+</span><span class="n">old_like</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">old_loo_z2</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_z2</span><span class="p">).</span><span class="n">loo</span>
+<span class="n">old_like</span> <span class="o">=</span> <span class="n">idata_z2</span><span class="p">.</span><span class="n">sample_stats</span><span class="p">.</span><span class="n">log_likelihood</span>
+<span class="n">idata_z2</span><span class="p">.</span><span class="n">sample_stats</span><span class="p">[</span><span class="s">"log_likelihood"</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">z2_data</span><span class="p">.</span><span class="n">values</span><span class="p">)</span><span class="o">+</span><span class="n">old_like</span>
 </code></pre></div></div>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_y</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">az</span><span class="p">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_y</span><span class="p">)</span>
 </code></pre></div></div>
 
 <pre><code>Computed from 4500 by 46 log-likelihood matrix
@@ -650,8 +649,8 @@ IC_loo   388.43     7.72
 p_loo      1.56        -
 </code></pre>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"LOO before Jacobian transformation: {:.2f}"</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">old_loo_z1</span><span class="p">))</span>
-<span class="k">print</span><span class="p">(</span><span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_z1</span><span class="p">))</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"LOO before Jacobian transformation: {:.2f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">old_loo_z1</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">az</span><span class="p">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_z1</span><span class="p">))</span>
 </code></pre></div></div>
 
 <pre><code>LOO before Jacobian transformation: -141.43
@@ -662,8 +661,8 @@ IC_loo   200.56     8.95
 p_loo      3.03        -
 </code></pre>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"LOO before Jacobian transformation: {:.2f}"</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">old_loo_z2</span><span class="p">))</span>
-<span class="k">print</span><span class="p">(</span><span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_z2</span><span class="p">))</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"LOO before Jacobian transformation: {:.2f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">old_loo_z2</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">az</span><span class="p">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_z2</span><span class="p">))</span>
 </code></pre></div></div>
 
 <pre><code>LOO before Jacobian transformation: -4.93
@@ -709,13 +708,13 @@ p_loo      2.83        -
 </div>
 
 <!-- Scripts -->
-	<script src="/assets/js/jquery.min.js"></script>
-	<script src="/assets/js/jquery.scrolly.min.js"></script>
-	<script src="/assets/js/jquery.scrollex.min.js"></script>
-	<script src="/assets/js/skel.min.js"></script>
-	<script src="/assets/js/util.js"></script>
-	<!--[if lte IE 8]><script src="/assets/js/ie/respond.min.js"></script><![endif]-->
-	<script src="/assets/js/main.js"></script>
+	<script src="/gsoc2019_blog/assets/js/jquery.min.js"></script>
+	<script src="/gsoc2019_blog/assets/js/jquery.scrolly.min.js"></script>
+	<script src="/gsoc2019_blog/assets/js/jquery.scrollex.min.js"></script>
+	<script src="/gsoc2019_blog/assets/js/skel.min.js"></script>
+	<script src="/gsoc2019_blog/assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="/gsoc2019_blog/assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="/gsoc2019_blog/assets/js/main.js"></script>
 
 
 </body>

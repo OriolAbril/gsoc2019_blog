@@ -10,13 +10,13 @@
 	<title>GSoC blog</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-	<!--[if lte IE 8]><script src="/assets/js/ie/html5shiv.js"></script><![endif]-->
-	<link rel="stylesheet" href="/assets/css/main.css" />
-	<!--[if lte IE 9]><link rel="stylesheet" href="/assets/css/ie9.css" /><![endif]-->
-	<!--[if lte IE 8]><link rel="stylesheet" href="/assets/css/ie8.css" /><![endif]-->
+	<!--[if lte IE 8]><script src="/gsoc2019_blog/assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="/gsoc2019_blog/assets/css/main.css" />
+	<!--[if lte IE 9]><link rel="stylesheet" href="/gsoc2019_blog/assets/css/ie9.css" /><![endif]-->
+	<!--[if lte IE 8]><link rel="stylesheet" href="/gsoc2019_blog/assets/css/ie8.css" /><![endif]-->
 
     <!-- Favicon head tag -->
-    <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
+    <link rel="shortcut icon" type="image/x-icon" href="/gsoc2019_blog/assets/favicon.ico" />
 </head>
 
 
@@ -27,7 +27,7 @@
 
 <!-- Header -->
 <header id="header">
-	<a href="/" class="logo"><strong>GSoC blog</strong> <span></span></a>
+	<a href="/gsoc2019_blog/" class="logo"><strong>GSoC blog</strong> <span></span></a>
 	<nav>
 		<a href="#menu">Menu</a>
 	</nav>
@@ -42,7 +42,7 @@
 		    
 		
 		    
-		        <li><a href="/">Home</a></li>
+		        <li><a href="/gsoc2019_blog/">Home</a></li>
 	    	
 		
 		    
@@ -58,11 +58,11 @@
 		    
 		
 		    
-		        <li><a href="/oss.html">Open Source Software</a></li>
+		        <li><a href="/gsoc2019_blog/oss.html">Open Source Software</a></li>
 		    
 		
 		    
-		        <li><a href="/about.html">About me</a></li>
+		        <li><a href="/gsoc2019_blog/about.html">About me</a></li>
 		    
 		
 	</ul>
@@ -145,7 +145,7 @@
 
 <p>One of the pilars of Bayesian Statistics is working with the posterior distribution of the parameters instead of using point estimates and errors or confidence intervals. We all know how to obtain this posterior given the likelihood, the prior and the , $p(\theta \mid y) = p(y \mid \theta) p(\theta) / p(y)$. In addition, in many cases we are also interested in <strong>the probability of future observations given the observed data</strong> according to our model. This is called posterior predictive, which is calculated integrating out $\theta$:</p>
 
-<script type="math/tex; mode=display">p(y^* | y) = \int p(y^*|\theta) p(\theta|y) d\theta</script>
+\[p(y^* | y) = \int p(y^*|\theta) p(\theta|y) d\theta\]
 
 <p>where $y^*$ is the possible unobserved data and $y$ is the observed data. Therefore, if our model is correct, the observed data and the posterior predictive follow the same probability density function (pdf). In order to check if this holds, it is common to perform posterior predictive checks comparing the posterior predictive to the observed data. This can be done directly, comparing the kernel density estimates (KDE) of the observed data and posterior predictive samples, etc. A KDEs is nothing else than an estimation of the pdf of a random variable given a finite number of samples from this random variable.</p>
 
@@ -181,32 +181,32 @@
 
 <span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="n">stats</span>
 
-<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
 </code></pre></div></div>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s">'../forty_blog.mplstyle'</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">style</span><span class="p">.</span><span class="n">use</span><span class="p">(</span><span class="s">'../forty_blog.mplstyle'</span><span class="p">)</span>
 </code></pre></div></div>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">plot_ppc_loopit</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
-    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">9</span><span class="p">))</span>
-    <span class="n">ax_ppc</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
-    <span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">223</span><span class="p">);</span> <span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">224</span><span class="p">)</span>
-    <span class="n">az</span><span class="o">.</span><span class="n">plot_ppc</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax_ppc</span><span class="p">);</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">9</span><span class="p">))</span>
+    <span class="n">ax_ppc</span> <span class="o">=</span> <span class="n">fig</span><span class="p">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+    <span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="p">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">223</span><span class="p">);</span> <span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="p">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">224</span><span class="p">)</span>
+    <span class="n">az</span><span class="p">.</span><span class="n">plot_ppc</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax_ppc</span><span class="p">);</span>
     <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">ecdf</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">],</span> <span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">)):</span>
-        <span class="n">az</span><span class="o">.</span><span class="n">plot_loo_pit</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s">"obs"</span><span class="p">,</span> <span class="n">ecdf</span><span class="o">=</span><span class="n">ecdf</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">);</span>
-    <span class="n">ax_ppc</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-    <span class="n">ax_ppc</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">""</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ax_ppc</span><span class="p">,</span> <span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">])</span>
+        <span class="n">az</span><span class="p">.</span><span class="n">plot_loo_pit</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s">"obs"</span><span class="p">,</span> <span class="n">ecdf</span><span class="o">=</span><span class="n">ecdf</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">);</span>
+    <span class="n">ax_ppc</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">ax_ppc</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">""</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">ax_ppc</span><span class="p">,</span> <span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">])</span>
 </code></pre></div></div>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">N_obs</span> <span class="o">=</span> <span class="mi">170</span>
 <span class="n">mu_normal</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
 <span class="n">sd_normal</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="n">data_normal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mu_normal</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sd_normal</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N_obs</span><span class="p">)</span>
+<span class="n">data_normal</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mu_normal</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sd_normal</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N_obs</span><span class="p">)</span>
 <span class="n">a0_lr</span><span class="p">,</span> <span class="n">a1_lr</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.3</span>
 <span class="n">sd_lr</span> <span class="o">=</span> <span class="mf">1.4</span>
-<span class="n">data_x_regression</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">N_obs</span><span class="p">)</span>
-<span class="n">data_y_regression</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">a1_lr</span><span class="o">*</span><span class="n">data_x_regression</span><span class="o">+</span><span class="n">a0_lr</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sd_lr</span><span class="p">)</span>
+<span class="n">data_x_regression</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">N_obs</span><span class="p">)</span>
+<span class="n">data_y_regression</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">a1_lr</span><span class="o">*</span><span class="n">data_x_regression</span><span class="o">+</span><span class="n">a0_lr</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sd_lr</span><span class="p">)</span>
 </code></pre></div></div>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">coords_normal</span> <span class="o">=</span> <span class="p">{</span><span class="s">"obs"</span><span class="p">:</span> <span class="p">[</span><span class="s">"observation"</span><span class="p">],</span> <span class="s">"log_likelihood"</span><span class="p">:</span> <span class="p">[</span><span class="s">"observation"</span><span class="p">]}</span>
@@ -217,14 +217,14 @@
 
 <p>We will now plot the two datsets generated, to give graphical an idea of the data we are working with.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
-<span class="n">textsize</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s">"axes.labelsize"</span><span class="p">]</span>
-<span class="n">az</span><span class="o">.</span><span class="n">plot_dist</span><span class="p">(</span><span class="n">data_normal</span><span class="p">,</span> <span class="n">rug</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rug_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s">"space"</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="n">textsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">);</span>
-<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data_x_regression</span><span class="p">,</span> <span class="n">data_y_regression</span><span class="p">,</span> <span class="s">"."</span><span class="p">);</span>
-<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">)</span>
-<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">"Gaussian random variable draws"</span><span class="p">)</span>
-<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">"Data for linear regression"</span><span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">textsize</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s">"axes.labelsize"</span><span class="p">]</span>
+<span class="n">az</span><span class="p">.</span><span class="n">plot_dist</span><span class="p">(</span><span class="n">data_normal</span><span class="p">,</span> <span class="n">rug</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rug_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s">"space"</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="n">textsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">);</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">plot</span><span class="p">(</span><span class="n">data_x_regression</span><span class="p">,</span> <span class="n">data_y_regression</span><span class="p">,</span> <span class="s">"."</span><span class="p">);</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">set_title</span><span class="p">(</span><span class="s">"Gaussian random variable draws"</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">set_title</span><span class="p">(</span><span class="s">"Data for linear regression"</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </code></pre></div></div>
 
 <p><img src="/notebooks/loo-pit/loo-pit-tutorial_files/loo-pit-tutorial_15_0.png" alt="png" /></p>
@@ -232,21 +232,21 @@
 <h2 id="unidimensional-gaussian-variable">Unidimensional Gaussian variable</h2>
 <p>We will start with a model that correctly fits with the data, to show how should both checks look like. Afterwards, we will see cases were these checks deviate from this ideal case and give some hints on how to interpret these deviations.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">pm</span><span class="o">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">pm</span><span class="p">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span>
     <span class="c1"># Define priors
-</span>    <span class="n">mu</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"mu"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="n">sd</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">HalfNormal</span><span class="p">(</span><span class="s">"sd"</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</span>    <span class="n">mu</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"mu"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">sd</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">HalfNormal</span><span class="p">(</span><span class="s">"sd"</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 
     <span class="c1"># Define likelihood
-</span>    <span class="n">likelihood</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"obs"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span>
+</span>    <span class="n">likelihood</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"obs"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span>
                         <span class="n">sd</span><span class="o">=</span><span class="n">sd</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">data_normal</span><span class="p">)</span>
 
     <span class="c1"># Inference!
-</span>    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span> <span class="c1"># draw posterior samples using NUTS sampling
-</span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_prior_predictive</span><span class="p">()</span>
-    <span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+</span>    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample</span><span class="p">()</span> <span class="c1"># draw posterior samples using NUTS sampling
+</span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample_prior_predictive</span><span class="p">()</span>
+    <span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
 
-<span class="n">idata_normal</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pymc3</span><span class="p">(</span>
+<span class="n">idata_normal</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">from_pymc3</span><span class="p">(</span>
     <span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">,</span>
     <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span>
     <span class="n">posterior_predictive</span><span class="o">=</span><span class="n">posterior_predictive</span><span class="p">,</span>
@@ -275,21 +275,21 @@ Sampling 4 chains, 0 divergences: 100%|██████████| 4000/4000
 
 <p>These two examples show how the LOO-PIT looks like for overdispersed models (i.e. the error is assumed to be larger than what it actually is) and for underdispersed models (i.e. the error is assumed to be smaller than what it really is).</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">pm</span><span class="o">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">pm</span><span class="p">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span>
     <span class="c1"># Define priors
-</span>    <span class="n">mu</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"mu"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</span>    <span class="n">mu</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"mu"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 
     <span class="c1"># Define likelihood
-</span>    <span class="n">likelihood</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span>
+</span>    <span class="n">likelihood</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">Normal</span><span class="p">(</span>
         <span class="s">"obs"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mf">1.5</span> <span class="o">*</span> <span class="n">sd_normal</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">data_normal</span>
     <span class="p">)</span>
 
     <span class="c1"># Inference!
-</span>    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span> <span class="c1"># draw posterior samples using NUTS sampling
-</span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_prior_predictive</span><span class="p">()</span>
-    <span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+</span>    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample</span><span class="p">()</span> <span class="c1"># draw posterior samples using NUTS sampling
+</span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample_prior_predictive</span><span class="p">()</span>
+    <span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
 
-<span class="n">idata_normal_overdispersed</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pymc3</span><span class="p">(</span>
+<span class="n">idata_normal_overdispersed</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">from_pymc3</span><span class="p">(</span>
     <span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">,</span>
     <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span>
     <span class="n">posterior_predictive</span><span class="o">=</span><span class="n">posterior_predictive</span><span class="p">,</span>
@@ -315,21 +315,21 @@ Sampling 4 chains, 0 divergences: 100%|██████████| 4000/4000
 
 <h3 id="underdispersion-signs">Underdispersion signs</h3>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">pm</span><span class="o">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">pm</span><span class="p">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span>
     <span class="c1"># Define priors
-</span>    <span class="n">mu</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"mu"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</span>    <span class="n">mu</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"mu"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 
     <span class="c1"># Define likelihood
-</span>    <span class="n">likelihood</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span>
-        <span class="s">"obs"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mf">.75</span> <span class="o">*</span> <span class="n">sd_normal</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">data_normal</span>
+</span>    <span class="n">likelihood</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">Normal</span><span class="p">(</span>
+        <span class="s">"obs"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="p">.</span><span class="mi">75</span> <span class="o">*</span> <span class="n">sd_normal</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">data_normal</span>
     <span class="p">)</span>
 
     <span class="c1"># Inference!
-</span>    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span> <span class="c1"># draw posterior samples using NUTS sampling
-</span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_prior_predictive</span><span class="p">()</span>
-    <span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+</span>    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample</span><span class="p">()</span> <span class="c1"># draw posterior samples using NUTS sampling
+</span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample_prior_predictive</span><span class="p">()</span>
+    <span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
 
-<span class="n">idata_normal_underdispersed</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pymc3</span><span class="p">(</span>
+<span class="n">idata_normal_underdispersed</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">from_pymc3</span><span class="p">(</span>
     <span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">,</span>
     <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span>
     <span class="n">posterior_predictive</span><span class="o">=</span><span class="n">posterior_predictive</span><span class="p">,</span>
@@ -357,21 +357,21 @@ Sampling 4 chains, 0 divergences: 100%|██████████| 4000/4000
 
 <p>In addition, LOO-PIT checks also show signs of model bias, as shown in the following example:</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">pm</span><span class="o">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">pm</span><span class="p">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span>
     <span class="c1"># Define priors
-</span>    <span class="n">sd</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">HalfNormal</span><span class="p">(</span><span class="s">"sd"</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</span>    <span class="n">sd</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">HalfNormal</span><span class="p">(</span><span class="s">"sd"</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 
     <span class="c1"># Define likelihood
-</span>    <span class="n">likelihood</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span>
+</span>    <span class="n">likelihood</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">Normal</span><span class="p">(</span>
         <span class="s">"obs"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu_normal</span> <span class="o">-</span> <span class="n">sd_normal</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="n">sd</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">data_normal</span>
     <span class="p">)</span>
 
     <span class="c1"># Inference!
-</span>    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span> <span class="c1"># draw posterior samples using NUTS sampling
-</span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_prior_predictive</span><span class="p">()</span>
-    <span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+</span>    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample</span><span class="p">()</span> <span class="c1"># draw posterior samples using NUTS sampling
+</span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample_prior_predictive</span><span class="p">()</span>
+    <span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
 
-<span class="n">idata_normal_bias</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pymc3</span><span class="p">(</span>
+<span class="n">idata_normal_bias</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">from_pymc3</span><span class="p">(</span>
     <span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">,</span>
     <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span>
     <span class="n">posterior_predictive</span><span class="o">=</span><span class="n">posterior_predictive</span><span class="p">,</span>
@@ -406,22 +406,22 @@ Sampling 4 chains, 0 divergences: 100%|██████████| 4000/4000
 <p>In the case of a linear regression, the posterior predictive checks direclty do not give us much information, because each datapoint is centered at a different location, so combining them to create a single KDE won’t yield useful results.
 It is important to note though, that this is not an issue inherent to the posterior predictive checks, and could be solved by rescaling each observation by substracting the mean and divide by the standard deviation along every observation from the posterior predictive. We will also include an example of this kind of transformation in the last example, but there should not be much to worry about as this improvement is on the ArviZ roadmap.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">pm</span><span class="o">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span> <span class="c1"># model specifications in PyMC3 are wrapped in a with-statement
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">pm</span><span class="p">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span> <span class="c1"># model specifications in PyMC3 are wrapped in a with-statement
 </span>    <span class="c1"># Define priors
-</span>    <span class="n">sigma</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">HalfNormal</span><span class="p">(</span><span class="s">'sigma'</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="n">a0</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"a0"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-    <span class="n">a1</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"a1"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</span>    <span class="n">sigma</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">HalfNormal</span><span class="p">(</span><span class="s">'sigma'</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">a0</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"a0"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">a1</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"a1"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 
     <span class="c1"># Define likelihood
-</span>    <span class="n">likelihood</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">'obs'</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">a0</span> <span class="o">+</span> <span class="n">a1</span> <span class="o">*</span> <span class="n">data_x_regression</span><span class="p">,</span>
+</span>    <span class="n">likelihood</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">'obs'</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">a0</span> <span class="o">+</span> <span class="n">a1</span> <span class="o">*</span> <span class="n">data_x_regression</span><span class="p">,</span>
                         <span class="n">sd</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">data_y_regression</span><span class="p">)</span>
 
     <span class="c1"># Inference!
-</span>    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span> <span class="c1"># draw posterior samples using NUTS sampling
-</span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_prior_predictive</span><span class="p">()</span>
-    <span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+</span>    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample</span><span class="p">()</span> <span class="c1"># draw posterior samples using NUTS sampling
+</span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample_prior_predictive</span><span class="p">()</span>
+    <span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
 
-<span class="n">idata_lr</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pymc3</span><span class="p">(</span>
+<span class="n">idata_lr</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">from_pymc3</span><span class="p">(</span>
     <span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">,</span>
     <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span>
     <span class="n">posterior_predictive</span><span class="o">=</span><span class="n">posterior_predictive</span><span class="p">,</span>
@@ -446,21 +446,21 @@ The acceptance probability does not match the target. It is 0.8878515682888283, 
 
 <p>Now let’s see how does introducing some small bias modifies the results.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">pm</span><span class="o">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span> <span class="c1"># model specifications in PyMC3 are wrapped in a with-statement
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">pm</span><span class="p">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span> <span class="c1"># model specifications in PyMC3 are wrapped in a with-statement
 </span>    <span class="c1"># Define priors
-</span>    <span class="n">sigma</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">HalfNormal</span><span class="p">(</span><span class="s">'sigma'</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="n">a1</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"a1"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</span>    <span class="n">sigma</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">HalfNormal</span><span class="p">(</span><span class="s">'sigma'</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">a1</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"a1"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 
     <span class="c1"># Define likelihood
-</span>    <span class="n">likelihood</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">'obs'</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">a0_lr</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">a1</span> <span class="o">*</span> <span class="n">data_x_regression</span><span class="p">,</span>
+</span>    <span class="n">likelihood</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">'obs'</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">a0_lr</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">a1</span> <span class="o">*</span> <span class="n">data_x_regression</span><span class="p">,</span>
                         <span class="n">sd</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">data_y_regression</span><span class="p">)</span>
 
     <span class="c1"># Inference!
-</span>    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span> <span class="c1"># draw posterior samples using NUTS sampling
-</span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_prior_predictive</span><span class="p">()</span>
-    <span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+</span>    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample</span><span class="p">()</span> <span class="c1"># draw posterior samples using NUTS sampling
+</span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample_prior_predictive</span><span class="p">()</span>
+    <span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
 
-<span class="n">idata_lr_bias</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pymc3</span><span class="p">(</span>
+<span class="n">idata_lr_bias</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">from_pymc3</span><span class="p">(</span>
     <span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">,</span>
     <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span>
     <span class="n">posterior_predictive</span><span class="o">=</span><span class="n">posterior_predictive</span><span class="p">,</span>
@@ -486,20 +486,20 @@ Sampling 4 chains, 0 divergences: 100%|██████████| 4000/4000
 
 <p>Finally, let’s combine some bias with overdispersion, to see how is LOO-PIT modified. Moreover, we will rescale the posterior predictive data to see how would rescaling affect the posterior predictive checks.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">pm</span><span class="o">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span> <span class="c1"># model specifications in PyMC3 are wrapped in a with-statement
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">pm</span><span class="p">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span> <span class="c1"># model specifications in PyMC3 are wrapped in a with-statement
 </span>    <span class="c1"># Define priors
-</span>    <span class="n">a1</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"a1"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</span>    <span class="n">a1</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"a1"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 
     <span class="c1"># Define likelihood
-</span>    <span class="n">likelihood</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">'obs'</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">a0_lr</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">a1</span> <span class="o">*</span> <span class="n">data_x_regression</span><span class="p">,</span>
+</span>    <span class="n">likelihood</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">'obs'</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">a0_lr</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">a1</span> <span class="o">*</span> <span class="n">data_x_regression</span><span class="p">,</span>
                         <span class="n">sd</span><span class="o">=</span><span class="mf">1.5</span> <span class="o">*</span> <span class="n">sd_lr</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">data_y_regression</span><span class="p">)</span>
 
     <span class="c1"># Inference!
-</span>    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span> <span class="c1"># draw posterior samples using NUTS sampling
-</span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_prior_predictive</span><span class="p">()</span>
-    <span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+</span>    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample</span><span class="p">()</span> <span class="c1"># draw posterior samples using NUTS sampling
+</span>    <span class="n">prior</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample_prior_predictive</span><span class="p">()</span>
+    <span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
 
-<span class="n">idata_lr_bias_overdispersed</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pymc3</span><span class="p">(</span>
+<span class="n">idata_lr_bias_overdispersed</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">from_pymc3</span><span class="p">(</span>
     <span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">,</span>
     <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span>
     <span class="n">posterior_predictive</span><span class="o">=</span><span class="n">posterior_predictive</span><span class="p">,</span>
@@ -521,20 +521,20 @@ Sampling 4 chains, 0 divergences: 100%|██████████| 4000/4000
 
 <p><img src="/notebooks/loo-pit/loo-pit-tutorial_files/loo-pit-tutorial_41_0.png" alt="png" /></p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pp_samples</span> <span class="o">=</span> <span class="n">idata_lr_bias_overdispersed</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="o">.</span><span class="n">obs</span>
-<span class="n">obs_samples</span> <span class="o">=</span> <span class="n">idata_lr_bias_overdispersed</span><span class="o">.</span><span class="n">observed_data</span><span class="o">.</span><span class="n">obs</span>
-<span class="n">pp_means</span> <span class="o">=</span> <span class="n">pp_samples</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="s">"chain"</span><span class="p">,</span> <span class="s">"draw"</span><span class="p">))</span>
-<span class="n">pp_stds</span> <span class="o">=</span> <span class="n">pp_samples</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="s">"chain"</span><span class="p">,</span> <span class="s">"draw"</span><span class="p">))</span>
-<span class="n">idata_lr_bias_overdispersed</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="p">[</span><span class="s">"obs_rescaled"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">pp_samples</span> <span class="o">-</span> <span class="n">pp_means</span><span class="p">)</span> <span class="o">/</span> <span class="n">pp_stds</span>
-<span class="n">idata_lr_bias_overdispersed</span><span class="o">.</span><span class="n">observed_data</span><span class="p">[</span><span class="s">"obs_rescaled"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">obs_samples</span> <span class="o">-</span> <span class="n">pp_means</span><span class="p">)</span> <span class="o">/</span> <span class="n">pp_stds</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pp_samples</span> <span class="o">=</span> <span class="n">idata_lr_bias_overdispersed</span><span class="p">.</span><span class="n">posterior_predictive</span><span class="p">.</span><span class="n">obs</span>
+<span class="n">obs_samples</span> <span class="o">=</span> <span class="n">idata_lr_bias_overdispersed</span><span class="p">.</span><span class="n">observed_data</span><span class="p">.</span><span class="n">obs</span>
+<span class="n">pp_means</span> <span class="o">=</span> <span class="n">pp_samples</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="s">"chain"</span><span class="p">,</span> <span class="s">"draw"</span><span class="p">))</span>
+<span class="n">pp_stds</span> <span class="o">=</span> <span class="n">pp_samples</span><span class="p">.</span><span class="n">std</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="s">"chain"</span><span class="p">,</span> <span class="s">"draw"</span><span class="p">))</span>
+<span class="n">idata_lr_bias_overdispersed</span><span class="p">.</span><span class="n">posterior_predictive</span><span class="p">[</span><span class="s">"obs_rescaled"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">pp_samples</span> <span class="o">-</span> <span class="n">pp_means</span><span class="p">)</span> <span class="o">/</span> <span class="n">pp_stds</span>
+<span class="n">idata_lr_bias_overdispersed</span><span class="p">.</span><span class="n">observed_data</span><span class="p">[</span><span class="s">"obs_rescaled"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">obs_samples</span> <span class="o">-</span> <span class="n">pp_means</span><span class="p">)</span> <span class="o">/</span> <span class="n">pp_stds</span>
 </code></pre></div></div>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">13</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">13</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">((</span><span class="s">"obs"</span><span class="p">,</span> <span class="s">"obs_rescaled"</span><span class="p">)):</span>
     <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ecdf</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">((</span><span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">)):</span>
-        <span class="n">az</span><span class="o">.</span><span class="n">plot_loo_pit</span><span class="p">(</span><span class="n">idata_lr_bias_overdispersed</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">var</span><span class="p">,</span> <span class="n">ecdf</span><span class="o">=</span><span class="n">ecdf</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]);</span>
-<span class="n">az</span><span class="o">.</span><span class="n">plot_ppc</span><span class="p">(</span><span class="n">idata_lr_bias_overdispersed</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s">"Linear Regression: Rescaling effect</span><span class="se">\n</span><span class="s">Biased and overdispersed model"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"white"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">);</span>
+        <span class="n">az</span><span class="p">.</span><span class="n">plot_loo_pit</span><span class="p">(</span><span class="n">idata_lr_bias_overdispersed</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">var</span><span class="p">,</span> <span class="n">ecdf</span><span class="o">=</span><span class="n">ecdf</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]);</span>
+<span class="n">az</span><span class="p">.</span><span class="n">plot_ppc</span><span class="p">(</span><span class="n">idata_lr_bias_overdispersed</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
+<span class="n">fig</span><span class="p">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s">"Linear Regression: Rescaling effect</span><span class="se">\n</span><span class="s">Biased and overdispersed model"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"white"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">);</span>
 </code></pre></div></div>
 
 <p><img src="/notebooks/loo-pit/loo-pit-tutorial_files/loo-pit-tutorial_43_0.png" alt="png" /></p>
@@ -555,31 +555,31 @@ Sampling 4 chains, 0 divergences: 100%|██████████| 4000/4000
     <span class="s">"B"</span><span class="p">:</span> <span class="p">[</span><span class="s">"independent_var"</span><span class="p">,</span> <span class="s">"dependent_var"</span><span class="p">],</span>
     <span class="s">"obs"</span><span class="p">:</span> <span class="p">[</span><span class="s">"observation"</span><span class="p">,</span> <span class="s">"dependent_var"</span><span class="p">],</span>
     <span class="s">"log_likelihood"</span><span class="p">:</span> <span class="p">[</span><span class="s">"observation"</span><span class="p">]}</span>
-<span class="n">X_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">N_obs</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span><span class="o">.</span><span class="n">T</span>
-<span class="n">B_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
-<span class="n">true_cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
+<span class="n">X_obs</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">stack</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">N_obs</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]).</span><span class="n">T</span>
+<span class="n">B_true</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
+<span class="n">true_cov</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
                      <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
                      <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]])</span>
-<span class="n">mu_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X_obs</span><span class="p">,</span> <span class="n">B_true</span><span class="p">)</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="p">(</span><span class="n">mu_true</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">true_cov</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_obs</span><span class="p">)])</span>
+<span class="n">mu_true</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X_obs</span><span class="p">,</span> <span class="n">B_true</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">stack</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">multivariate_normal</span><span class="p">(</span><span class="n">mu_true</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">true_cov</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_obs</span><span class="p">)])</span>
 </code></pre></div></div>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">pm</span><span class="o">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">pm</span><span class="p">.</span><span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span>
     <span class="c1"># Note that we access the distribution for the standard
 </span>    <span class="c1"># deviations, and do not create a new random variable.
-</span>    <span class="n">X</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="s">"X"</span><span class="p">,</span> <span class="n">X_obs</span><span class="p">)</span>
-    <span class="n">sd_dist</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">HalfCauchy</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">beta</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
-    <span class="n">packed_chol</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">LKJCholeskyCov</span><span class="p">(</span><span class="s">'chol_cov'</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">M</span><span class="p">,</span> <span class="n">sd_dist</span><span class="o">=</span><span class="n">sd_dist</span><span class="p">)</span>
-    <span class="n">chol</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">expand_packed_triangular</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">packed_chol</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</span>    <span class="n">X</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">Data</span><span class="p">(</span><span class="s">"X"</span><span class="p">,</span> <span class="n">X_obs</span><span class="p">)</span>
+    <span class="n">sd_dist</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">HalfCauchy</span><span class="p">.</span><span class="n">dist</span><span class="p">(</span><span class="n">beta</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+    <span class="n">packed_chol</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">LKJCholeskyCov</span><span class="p">(</span><span class="s">'chol_cov'</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">M</span><span class="p">,</span> <span class="n">sd_dist</span><span class="o">=</span><span class="n">sd_dist</span><span class="p">)</span>
+    <span class="n">chol</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">expand_packed_triangular</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">packed_chol</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
     <span class="c1"># Define a new MvNormal with the given covariance
-</span>    <span class="n">B</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"B"</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
-    <span class="n">mu</span> <span class="o">=</span> <span class="n">tt</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
-    <span class="n">vals</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">MvNormal</span><span class="p">(</span><span class="s">"obs"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">chol</span><span class="o">=</span><span class="n">chol</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
-    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
-    <span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+</span>    <span class="n">B</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">Normal</span><span class="p">(</span><span class="s">"B"</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="n">tt</span><span class="p">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
+    <span class="n">vals</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">MvNormal</span><span class="p">(</span><span class="s">"obs"</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">chol</span><span class="o">=</span><span class="n">chol</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">trace</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample</span><span class="p">()</span>
+    <span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">pm</span><span class="p">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
 
-<span class="n">idata_mv_normal</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">from_pymc3</span><span class="p">(</span><span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">,</span> <span class="n">posterior_predictive</span><span class="o">=</span><span class="n">posterior_predictive</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">)</span>
+<span class="n">idata_mv_normal</span> <span class="o">=</span> <span class="n">az</span><span class="p">.</span><span class="n">from_pymc3</span><span class="p">(</span><span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">,</span> <span class="n">posterior_predictive</span><span class="o">=</span><span class="n">posterior_predictive</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">)</span>
 </code></pre></div></div>
 
 <pre><code>Auto-assigning NUTS sampler...
@@ -592,8 +592,8 @@ Sampling 4 chains, 0 divergences: 100%|██████████| 4000/4000
 
 <p>In these model, each observation is multivariate, thus, the shape of the posterior predictive $(N_{chains}, N_{draws}, N_{obs}, M)$ and the shape of the log likelihood $(N_{chains}, N_{draws}, N_{obs})$ are not the same, preventing us from using LOO-PIT checks directly.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"pp shape: "</span><span class="p">,</span> <span class="n">idata_mv_normal</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s">"log_like shape: "</span><span class="p">,</span> <span class="n">idata_mv_normal</span><span class="o">.</span><span class="n">sample_stats</span><span class="o">.</span><span class="n">log_likelihood</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"pp shape: "</span><span class="p">,</span> <span class="n">idata_mv_normal</span><span class="p">.</span><span class="n">posterior_predictive</span><span class="p">.</span><span class="n">obs</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"log_like shape: "</span><span class="p">,</span> <span class="n">idata_mv_normal</span><span class="p">.</span><span class="n">sample_stats</span><span class="p">.</span><span class="n">log_likelihood</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
 </code></pre></div></div>
 
 <pre><code>pp shape:  (4, 500, 80, 3)
@@ -609,17 +609,17 @@ log_like shape:  (4, 500, 80)
 <p>In this case we will calculate perform LOO-PIT checks on each component of th multivariate observations. This would be similar to marginalizing the multidimensional probability density function on this direction of the $M$-D space.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s">"obs_{}"</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
-    <span class="n">idata_mv_normal</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">idata_mv_normal</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">dependent_var</span><span class="o">=</span><span class="n">j</span><span class="p">)</span>
-    <span class="n">idata_mv_normal</span><span class="o">.</span><span class="n">observed_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">idata_mv_normal</span><span class="o">.</span><span class="n">observed_data</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">dependent_var</span><span class="o">=</span><span class="n">j</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"obs_{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+    <span class="n">idata_mv_normal</span><span class="p">.</span><span class="n">posterior_predictive</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">idata_mv_normal</span><span class="p">.</span><span class="n">posterior_predictive</span><span class="p">.</span><span class="n">obs</span><span class="p">.</span><span class="n">sel</span><span class="p">(</span><span class="n">dependent_var</span><span class="o">=</span><span class="n">j</span><span class="p">)</span>
+    <span class="n">idata_mv_normal</span><span class="p">.</span><span class="n">observed_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">idata_mv_normal</span><span class="p">.</span><span class="n">observed_data</span><span class="p">.</span><span class="n">obs</span><span class="p">.</span><span class="n">sel</span><span class="p">(</span><span class="n">dependent_var</span><span class="o">=</span><span class="n">j</span><span class="p">)</span>
 </code></pre></div></div>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">13</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">13</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s">"obs_{}"</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"obs_{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">ecdf</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">((</span><span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">)):</span>
-        <span class="n">az</span><span class="o">.</span><span class="n">plot_loo_pit</span><span class="p">(</span><span class="n">idata_mv_normal</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">ecdf</span><span class="o">=</span><span class="n">ecdf</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">col</span><span class="p">]);</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s">"Multivariate Linear Regression: Marginalizing over components</span><span class="se">\n</span><span class="s">Calibrated model"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"white"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">);</span>
+        <span class="n">az</span><span class="p">.</span><span class="n">plot_loo_pit</span><span class="p">(</span><span class="n">idata_mv_normal</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">ecdf</span><span class="o">=</span><span class="n">ecdf</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">col</span><span class="p">]);</span>
+<span class="n">fig</span><span class="p">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s">"Multivariate Linear Regression: Marginalizing over components</span><span class="se">\n</span><span class="s">Calibrated model"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">"white"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">);</span>
 </code></pre></div></div>
 
 <p><img src="/notebooks/loo-pit/loo-pit-tutorial_files/loo-pit-tutorial_53_0.png" alt="png" /></p>
@@ -658,13 +658,13 @@ log_like shape:  (4, 500, 80)
 </div>
 
 <!-- Scripts -->
-	<script src="/assets/js/jquery.min.js"></script>
-	<script src="/assets/js/jquery.scrolly.min.js"></script>
-	<script src="/assets/js/jquery.scrollex.min.js"></script>
-	<script src="/assets/js/skel.min.js"></script>
-	<script src="/assets/js/util.js"></script>
-	<!--[if lte IE 8]><script src="/assets/js/ie/respond.min.js"></script><![endif]-->
-	<script src="/assets/js/main.js"></script>
+	<script src="/gsoc2019_blog/assets/js/jquery.min.js"></script>
+	<script src="/gsoc2019_blog/assets/js/jquery.scrolly.min.js"></script>
+	<script src="/gsoc2019_blog/assets/js/jquery.scrollex.min.js"></script>
+	<script src="/gsoc2019_blog/assets/js/skel.min.js"></script>
+	<script src="/gsoc2019_blog/assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="/gsoc2019_blog/assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="/gsoc2019_blog/assets/js/main.js"></script>
 
 
 </body>
